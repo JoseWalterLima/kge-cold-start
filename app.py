@@ -31,13 +31,10 @@ from src.functions import connect_to_neo4j, create_nodes_and_relationships, \
             find_similar_users
 import streamlit as st
 import time
-import yaml
 from graphdatascience import GraphDataScience
 import numpy as np
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
-with open("config.yaml") as f:
-    cfg = yaml.load(f, Loader=yaml.FullLoader)
 
 # App Streamlit
 def login_page():

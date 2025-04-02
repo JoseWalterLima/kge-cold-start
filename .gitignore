@@ -2,3 +2,4 @@ env/
 kgenv/
 data/
 *.ipynb
+__pycache__/
