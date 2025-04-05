@@ -1,6 +1,7 @@
 env/
 kgenv/
 data/
+experiments/
 *.ipynb
 *.csv
 __pycache__/
