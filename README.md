@@ -79,7 +79,7 @@ similares para diferentes investidores.
 **Definições de Ambiente**: A aplicação, bem coma todas as bibliotecas definidas em *requirements.txt*, foi construída sobre a seguinte estrutura:
 - Python 3.10.7
 - Neo4j Community 5.26.3
-- Neo4j Graph Data Science 2.15.0
+- Neo4j Graph Data Science 2.13.2
 - OpenJDK 21
 
 **Busca dos Dados**:

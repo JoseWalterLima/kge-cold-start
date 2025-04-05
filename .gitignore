@@ -2,4 +2,5 @@ env/
 kgenv/
 data/
 *.ipynb
+*.csv
 __pycache__/
