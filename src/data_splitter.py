@@ -2,11 +2,22 @@
 # 02/2025
 
 import os
+import requests
+import zipfile
+import io
 import pandas as pd
+data_url = "https://files.grouplens.org/datasets/movielens/ml-100k.zip"
 directory = "data/"
 os.makedirs(directory, exist_ok=True)
 
-# Movie dataset
+# Download the data from Movielens official website
+def download_and_extract_movielens():
+    url = data_url
+    r = requests.get(url)
+    z = zipfile.ZipFile(io.BytesIO(r.content))
+    z.extractall(path=directory)
+download_and_extract_movielens()
+# Build Movies dataset
 m=pd.read_csv(
     'data/ml-100k/u.item',
     sep='|',

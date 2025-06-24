@@ -63,73 +63,24 @@ def create_nodes_and_relationships(gds, params: dict):
         e relacionamentos.
 
     Returns:
-        Neo4j graph database nós e relacionamentos.
+        movieId: Retorna o id interno do nó movie, para uso futuro no código.
+        Cria novos nós e relacionamentos no graph database.
     """
-    if params["tp_rendimento"]=="PRE":
-        # Escrita dos nós
-        query = """
-        MERGE (a:Ativo {ativoNome: $nm_modalidade})
-        MERGE (m:Modalidade {modalidadeDesc: $tipo_ativo})
-        MERGE (mc:Marcador {marcadorDesc: $tp_rendimento})
-        MERGE (j:Juros {jurosDesc: $taxa_indexador})
-        MERGE (i:Imposto {impostoDesc: $imposto_renda})
-        MERGE (p:Prazo {prazoDesc: $prazo_vencimento})
-        MERGE (r:Resgate {resgateDesc: $prazo_minimo})
-        MERGE (v:Valor {minimoDesc: $vl_min_aplic})
-        """
-        gds.run_cypher(query, params=params)
-        # Escrita dos relacionamentos
-        query = """
-        MATCH (a:Ativo {ativoNome: $nm_modalidade}),
-        (m:Modalidade {modalidadeDesc: $tipo_ativo}),
-        (mc:Marcador {marcadorDesc: $tp_rendimento}),
-        (j:Juros {jurosDesc: $taxa_indexador}),
-        (i:Imposto {impostoDesc: $imposto_renda}),
-        (p:Prazo {prazoDesc: $prazo_vencimento}),
-        (r:Resgate {resgateDesc: $prazo_minimo}),
-        (v:Valor {minimoDesc: $vl_min_aplic})
-        MERGE (a)-[:CLASSIFICADO]->(m)
-        MERGE (a)-[:MARCADO]->(mc)
-        MERGE (a)-[:REMUNERADO]->(j)
-        MERGE (a)-[:TRIBUTADO]->(i)
-        MERGE (a)-[:VENCIMENTO]->(p)
-        MERGE (a)-[:LIQUIDEZ]->(r)
-        MERGE (a)-[:VALOR_MINIMO]->(v)
-        """
-        gds.run_cypher(query, params=params)
-    else:
-        # Escrita dos nós
-        query = """
-        MERGE (a:Ativo {ativoNome: $nm_modalidade})
-        MERGE (m:Modalidade {modalidadeDesc: $tipo_ativo})
-        MERGE (mc:Marcador {marcadorDesc: $tp_rendimento})
-        MERGE (x:Indexador {indexadorDesc: $taxa_indexador})
-        MERGE (i:Imposto {impostoDesc: $imposto_renda})
-        MERGE (p:Prazo {prazoDesc: $prazo_vencimento})
-        MERGE (r:Resgate {resgateDesc: $prazo_minimo})
-        MERGE (v:Valor {minimoDesc: $vl_min_aplic})
-        """
-        gds.run_cypher(query, params=params)
-        # Escrita dos relacionamentos
-        query = """
-        MATCH (a:Ativo {ativoNome: $nm_modalidade}),
-        (m:Modalidade {modalidadeDesc: $tipo_ativo}),
-        (mc:Marcador {marcadorDesc: $tp_rendimento}),
-        (x:Indexador {indexadorDesc: $taxa_indexador}),
-        (i:Imposto {impostoDesc: $imposto_renda}),
-        (p:Prazo {prazoDesc: $prazo_vencimento}),
-        (r:Resgate {resgateDesc: $prazo_minimo}),
-        (v:Valor {minimoDesc: $vl_min_aplic})
-        MERGE (a)-[:CLASSIFICADO]->(m)
-        MERGE (a)-[:MARCADO]->(mc)
-        MERGE (a)-[:INDEXADO]->(x)
-        MERGE (a)-[:TRIBUTADO]->(i)
-        MERGE (a)-[:VENCIMENTO]->(p)
-        MERGE (a)-[:LIQUIDEZ]->(r)
-        MERGE (a)-[:VALOR_MINIMO]->(v)
-        """
-        gds.run_cypher(query, params=params)
+    # Escrita dos nós
+    query = """
+    MERGE (m:Movie {movieTitle: $movieTitle})
+    MERGE (r:Release {releaseDate: $releaseDate})
+    MERGE (m)-[:RELEASED]->(r)
 
+    FOREACH (genre IN $genreDesc | 
+        MERGE (g:Genre {genreDesc: genre})
+        MERGE (m)-[:LABELED]->(g)
+    )
+    RETURN id(m) AS movieId
+    """
+    return gds.run_cypher(
+        query, params=params).loc[0, "movieId"] 
+     
 def create_graph_projection(gds):
     """
     Cria uma projeção de um grafo Neo4j utilizando a conector Graph
@@ -149,53 +100,31 @@ def create_graph_projection(gds):
     """
     # Nós considerados na projeção
     node_projection = {
-        "Usuario": {"label": "Usuario"},
-        "Comunidade": {"label": "Comunidade"},
-        "Gerente": {"label": "Gerente"},
-        "Perfil": {"label": "Perfil"},
-        "Nascimento": {"label": "Nascimento"},
-        "Trabalho": {"label": "Trabalho"},
-        "Formacao": {"label": "Formacao"},
-        "Renda": {"label": "Renda"},
-        "Estado": {"label": "Estado"},
-        "Segmento": {"label": "Segmento"},
-        "Ativo": {"label": "Ativo"},
-        "Modalidade": {"label": "Modalidade"},
-        "Marcador": {"label": "Marcador"},
-        "Indexador": {"label": "Indexador"},
-        "Juros": {"label": "Juros"},
-        "Imposto": {"label": "Imposto"},
-        "Prazo": {"label": "Prazo"},
-        "Resgate": {"label": "Resgate"},
-        "Valor": {"label": "Valor"}
+        "User": {"label": "User"},
+        "Zipcode": {"label": "Zipcode"},
+        "Age": {"label": "Age"},
+        "Gender": {"label": "Gender"},
+        "Occupation": {"label": "Occupation"},
+        "Movie": {"label": "Movie"},
+        "Genre": {"label": "Genre"},
+        "Release": {"label": "Release"}
     }
     # Relacionamentos considerados na projeção
     relationship_projection = {
-        "CLASSIFICADO": {"type": "CLASSIFICADO", "orientation": "UNDIRECTED"},
-        "ESTUDOU": {"type": "ESTUDOU", "orientation": "UNDIRECTED"},
-        "INDEXADO": {"type": "INDEXADO", "orientation": "UNDIRECTED"},
-        "INVESTIU": {"type": "INVESTIU", "orientation": "UNDIRECTED"},
-        "LIQUIDEZ": {"type": "LIQUIDEZ", "orientation": "UNDIRECTED"},
-        "MARCADO": {"type": "MARCADO", "orientation": "UNDIRECTED"},
-        "MORA": {"type": "MORA", "orientation": "UNDIRECTED"},
-        "NASCEU": {"type": "NASCEU", "orientation": "UNDIRECTED"},
-        "OPERA": {"type": "OPERA", "orientation": "UNDIRECTED"},
-        "ORIENTADO": {"type": "ORIENTADO", "orientation": "UNDIRECTED"},
-        "PARTICIPA": {"type": "PARTICIPA", "orientation": "UNDIRECTED"},
-        "PERTENCE": {"type": "PERTENCE", "orientation": "UNDIRECTED"},
-        "RECEBE": {"type": "RECEBE", "orientation": "UNDIRECTED"},
-        "REMUNERADO": {"type": "REMUNERADO", "orientation": "UNDIRECTED"},
-        "TRABALHA": {"type": "TRABALHA", "orientation": "UNDIRECTED"},
-        "TRIBUTADO": {"type": "TRIBUTADO", "orientation": "UNDIRECTED"},
-        "VALOR_MINIMO": {"type": "VALOR_MINIMO", "orientation": "UNDIRECTED"},
-        "VENCIMENTO": {"type": "VENCIMENTO", "orientation": "UNDIRECTED"}
+        "HAS_AGE": {"type": "HAS_AGE", "orientation": "UNDIRECTED"},
+        "HAS_GENDER": {"type": "HAS_GENDER", "orientation": "UNDIRECTED"},
+        "LABELED": {"type": "LABELED", "orientation": "UNDIRECTED"},
+        "LIVES_IN": {"type": "LIVES_IN", "orientation": "UNDIRECTED"},
+        "OCCUPATION": {"type": "OCCUPATION", "orientation": "UNDIRECTED"},
+        "RELEASED": {"type": "RELEASED", "orientation": "UNDIRECTED"},
+        "WATCHED": {"type": "WATCHED", "orientation": "UNDIRECTED"}
     }
     G, _ = gds.graph.project(
         "item_cold_start", node_projection, relationship_projection
         )
     return G
 
-def create_embeddings(gds, G):
+def create_embeddings(gds, G, algo: str) -> pd.DataFrame:
     """
     Esta função utiliza o algoritmo FastRP do Neo4j Graph Data Science para
     gerar embeddings de baixa dimensão para os nós do grafo. Os embeddings
@@ -203,9 +132,11 @@ def create_embeddings(gds, G):
     de nós, link prediction e recomendação.
 
     Args:
-        gds (GraphDataScience): Uma instância conectada de GraphDataScience
-        para executar operações no Neo4j.
+        gds (GraphDataScience): Uma instância do módulo GraphDataScience.
         G (Graph): O objeto Graph representando a projeção do grafo no Neo4j.
+        algo (algorithm): Algoritmo utilizado para mapeamento e geração dos
+        nodes embeddings. Deve ser uma das opções: fastrp, node2vec. Default
+        option como fastrp.
 
     Returns:
         pandas.DataFrame: Um DataFrame contendo os embeddings gerados para
@@ -215,13 +146,27 @@ def create_embeddings(gds, G):
         Pode levantar exceções relacionadas à execução do algoritmo FastRP,
         como problemas de memória ou configurações inválidas.
     """
-    emb = gds.fastRP.stream(
-        G,
-        randomSeed=42,
-        embeddingDimension=128,
-        normalizationStrength=-0.3,
-        iterationWeights=[0, 0.2, 0.8]
-    )
+    try:
+        if algo == 'fastrp':
+            emb = gds.fastRP.stream(
+            G,
+            randomSeed=42,
+            embeddingDimension=128,
+            normalizationStrength=-0.3,
+            iterationWeights=[0, 0.2, 0.8]
+            )
+        elif algo == 'node2vec':
+            emb = gds.node2vec.stream(
+            G,
+            randomSeed=42,
+            embeddingDimension=128,
+            walkLength=80,
+            walksPerNode=10,
+            inOutFactor=0.2,
+            returnFactor=2
+        )
+    except ValueError as e:
+        print(e)
     return emb
 
 def get_node_labels(gds, node_ids: list):
