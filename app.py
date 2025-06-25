@@ -190,7 +190,7 @@ def main_page():
                 # Opção de download do resultado
                 csv = result_df.to_csv(index=False)
                 st.download_button(
-                    label="Download resultados como CSV",
+                    label="Download results as CSV file",
                     data=csv,
                     file_name="rec_result.csv",
                     mime="text/csv",
@@ -206,11 +206,11 @@ def main_page():
             # Habilitar desconxão com servidor Neo4j
             disconnect_button_disabled = False
     else:
-        st.button("Executar Recomendação", disabled=True)
+        st.button("Run Recommendation", disabled=True)
         # Mensagens de aviso específicas para cada campo
-        st.error("Existem campos sem preenchimento.")
+        st.error("There are unfilled fields.")
     # Permitir a desconexão do servidor
-    if st.button("Desconectar", disabled=disconnect_button_disabled):
+    if st.button("Close database connection", disabled=disconnect_button_disabled):
         # Fecha a conexão com o Neo4j
         if 'gds' in st.session_state:
             st.session_state['gds'].close()
