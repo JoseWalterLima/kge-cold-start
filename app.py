@@ -31,13 +31,10 @@ from src.functions import connect_to_neo4j, create_nodes_and_relationships, \
             find_similar_users
 import streamlit as st
 import time
-import yaml
 from graphdatascience import GraphDataScience
 import numpy as np
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
-with open("config.yaml") as f:
-    cfg = yaml.load(f, Loader=yaml.FullLoader)
 
 # App Streamlit
 def login_page():
@@ -59,25 +56,18 @@ def login_page():
         - Botão "Conectar" para iniciar a tentativa de conexão.
         - Mensagens de feedback sobre o status da conexão.
     """
-    st.title("Login servidor Neo4j")
-    uri = st.text_input("URI do Neo4j", value="bolt://localhost:7687")
-    username = st.text_input("Usuário", value="neo4j")
-    password = st.text_input("Senha", type="password")
-    if st.button("Conectar"):
+    st.title("Knowledge Graph Connection")
+    uri = st.text_input("Neo4j URI", value="bolt://localhost:7687")
+    username = st.text_input("User", value="neo4j")
+    password = st.text_input("Password", type="password")
+    if st.button("Login"):
         gds = connect_to_neo4j(uri, username, password)
         if gds:
-            st.success("Conexão bem-sucedida!")
+            st.success("Successfully connected!")
             gds.graph.drop('item_cold_start')
             # Salva as informações de conexão na sessão
             st.session_state['gds'] = gds
             st.session_state['logged_in'] = True
-            # Salva o max_id do grafo
-            query="""
-            MATCH (n)
-            return count (n)
-            """
-            st.session_state['max_id'] =\
-                gds.run_cypher(query).values[0][0]
             time.sleep(1)
             # Atualizar a execução
             st.rerun()
@@ -108,47 +98,28 @@ def main_page():
     a conexão com o Neo4j.
     """
     st.set_page_config(layout="wide")
-    st.title("Oferta Pública: Recomendação de Clientes")
-    col1, col2, col3 = st.columns(3)
-    # Entrada dos dados
-    with col1:
-        nm_modalidade = st.text_input(
-            "Nome do Papel", placeholder = "digite o nome do papel"
-        )
-        tipo_ativo = st.selectbox(
-            "Modalidade", [
-                "", "RF Emissao Terceiros", "RF Emissao Propria"
-                ]
-        )
-        tp_rendimento = st.selectbox(
-            "Remuneração", options=["", "PRE", "POS"]
-        )
-    with col2:
-        if tp_rendimento=='PRE':
-            taxa_indexador = st.text_input(
-                "Taxa de Juros",
-                placeholder = "ex: 2.1"
-            )
-        else:
-            taxa_indexador = st.text_input(
-                "Indexador",
-                placeholder = "ex: CDI CETIP 100.0"
-            )
-        imposto_renda = st.selectbox(
-            "Imposto de Renda", options=["", "Isento", "Não Isento"]
-        )
-        prazo_vencimento = st.text_input(
-            "Vencimento", placeholder = "prazo máximo da aplicação (dias)"
-        )
-    with col3:
-        prazo_minimo = st.text_input(
-            "Liquidez", placeholder = "prazo mínimo da aplicação (dias)"
-        )
-        vl_min_aplic = st.text_input(
-            "Aporte mínimo", placeholder = "ex: 500"
-        )
-        nur = st.number_input(
-            "Número de Usuários Recomendados", value=100
+    st.title("Movie Recommender")
+    
+    # data input
+    movie_name = st.text_input(
+        "Movie Name", placeholder = "enter movie name"
+    )
+    release_date = st.text_input(
+        "Release Date", placeholder = "e.g.: Jan-2010"
+    )
+    movie_genre = st.multiselect(
+        "Movie Genre", options=[
+            'Action', 'Adventure',
+            'Animation', 'Childrens',
+            'Comedy', 'Crime', 'Documentary',
+            'Drama', 'Fantasy', 'Film-Noir',
+            'Horror', 'Musical', 'Mystery',
+            'Romance', 'Sci-Fi', 'Thriller',
+            'War', 'Western'
+        ], placeholder = "select all that apply"
+    )
+    nur = st.number_input(
+            "Number of user to recommend", value=100
             )
     def is_empty(field):
         """
@@ -157,81 +128,64 @@ def main_page():
         return not field.strip() if isinstance(field, str) else not field
     # Verificar todas as condições de entradas de dados
     all_fields_filled = not (
-        is_empty(nm_modalidade) or
-        is_empty(tipo_ativo) or
-        is_empty(tp_rendimento) or
-        is_empty(taxa_indexador) or
-        is_empty(imposto_renda) or
-        is_empty(prazo_vencimento) or
-        is_empty(prazo_minimo) or
-        is_empty(vl_min_aplic)
+        is_empty(movie_name) or
+        is_empty(release_date) or
+        is_empty(movie_genre)
     )
     # Controlar o estado do botão "Desconectar"
     disconnect_button_disabled = False
     # Ativação do botão e mensagens de aviso
     if all_fields_filled:
-        if st.button("Executar Recomendação", disabled=False):
+        if st.button("Run Recommendation", disabled=False):
             # Bloquear a desconexão com o servidor durante a execução
             disconnect_button_disabled = True
             # Define variáveis de execução
             gds = st.session_state['gds']
             params = {
-                "nm_modalidade": nm_modalidade,
-                "tipo_ativo": tipo_ativo,
-                "tp_rendimento": tp_rendimento,
-                "taxa_indexador": taxa_indexador,
-                "imposto_renda": imposto_renda,
-                "prazo_vencimento": prazo_vencimento,
-                "prazo_minimo": prazo_minimo,
-                "vl_min_aplic": vl_min_aplic
+                "movieTitle": movie_name,
+                "releaseDate": release_date,
+                "genreDesc": movie_genre
             }
             # Executa processo de embedding e recomendação
-            with st.spinner("Criando embeddings..."):
-                create_nodes_and_relationships(gds, params)
+            with st.spinner("Creating nodes and relationships..."):
+                # Insere o novo produto no grafo e recupe o id
+                target_id = create_nodes_and_relationships(gds, params)
+                # Cria projeção do knowledge graph (em memória)
+            with st.spinner("Creating graph projection..."):
                 G = create_graph_projection(gds)
-                emb = create_embeddings(gds, G)
-            with st.spinner("Recuperando node labels..."):
+            with st.spinner("Building node embeddings..."):
+                # Cria nodes embeddings, usando algorítmo específico
+                emb = create_embeddings(gds, G, 'fastrp')
+            with st.spinner("Retrieve node labels..."):
                 all_node_ids = emb['nodeId'].tolist()
                 labels_df = get_node_labels(gds, all_node_ids)
                 emb = emb.merge(
                     labels_df, how='left', on='nodeId'
                     )
-            with st.spinner("Buscando por usuários..."):
-                # Recuperar o valor de max_id da sessão anterior (Login)
-                max_id = st.session_state['max_id']
-                # Seleciona apenas os nós usuários e ativo alvo
+            with st.spinner("Searching users..."):
+                # Filtra a base de embeddings, mantendo apenas
+                # os nós usuários e o nó item alvo
                 emb = emb[
-                    (emb.label == 'Usuario') | (emb.nodeId == max_id)
+                    (emb.label == 'User') | (emb['nodeId'] == target_id)
                     ].reset_index(drop=True).copy()
                 # Busca pelos vetores mais próximos
-                users_ids = find_similar_users(emb, max_id, nur)
+                users_ids = find_similar_users(emb, target_id, nur)
                 emb = emb[
                     emb['nodeId'].isin(users_ids)
                     ].reset_index(drop=True).copy()
                 # Buscar user_id nos nós
-                emb['user_id'] = \
+                emb['userId'] = \
                     emb['nodeId'].apply(
-                        lambda id: gds.util.asNode(id)['usuarioId']
+                        lambda id: gds.util.asNode(id)['userId']
                         )
-                users_list = list(emb['user_id'].values)
+                users_list = list(emb['userId'].values)
                 result_df = pd.DataFrame(
-                    data={'user_id': users_list}
+                    data={'userId': users_list}
                     )
-                com_df = pd.read_csv(
-                    'data/usuario_info.csv',
-                    dtype={
-                        'user_id': str,
-                        'nu_cpfcnpj_cliente_ds': str,
-                        'ano_nascimento_ds': str,
-                        'nu_celular_cliente_ds': str}
-                )
-                result_df = result_df.merge(
-                    com_df,
-                    how='left',
-                    on='user_id'
-                ).copy()
+                # Deletar projeção do grafo
+                gds.graph.drop('item_cold_start')
                 # Display results
-                st.subheader("Usuários Recomendados")
+                st.subheader("Most Recommended Users")
                 st.dataframe(result_df)
                 # Opção de download do resultado
                 csv = result_df.to_csv(index=False)
@@ -245,12 +199,10 @@ def main_page():
                 gds.run_cypher(
                     """
                     MATCH (n)
-                    WHERE id(n) > $max_id
+                    WHERE id(n) = $target_id
                     DETACH DELETE n
                     """,
-                    params={'max_id': max_id - 1})
-                # Deletar projeção do grafo
-                gds.graph.drop('item_cold_start')
+                    params={'target_id': target_id})
             # Habilitar desconxão com servidor Neo4j
             disconnect_button_disabled = False
     else:
