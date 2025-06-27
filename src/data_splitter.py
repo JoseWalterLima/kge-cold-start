@@ -1,6 +1,8 @@
 # Author: José Walter Mota
 # 02/2025
-
+"""
+Need to add a description here!
+"""
 import os
 import requests
 import zipfile

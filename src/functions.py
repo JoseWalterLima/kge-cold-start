@@ -135,8 +135,7 @@ def create_embeddings(gds, G, algo: str) -> pd.DataFrame:
         gds (GraphDataScience): Uma instância do módulo GraphDataScience.
         G (Graph): O objeto Graph representando a projeção do grafo no Neo4j.
         algo (algorithm): Algoritmo utilizado para mapeamento e geração dos
-        nodes embeddings. Deve ser uma das opções: fastrp, node2vec. Default
-        option como fastrp.
+        nodes embeddings. Deve ser uma das opções: fastrp ou node2vec.
 
     Returns:
         pandas.DataFrame: Um DataFrame contendo os embeddings gerados para

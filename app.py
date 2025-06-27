@@ -118,6 +118,11 @@ def main_page():
             'War', 'Western'
         ], placeholder = "select all that apply"
     )
+    algo = st.selectbox(
+        "Embedding algorithm", options=[
+        'node2vec', 'fastrp'], index=None,
+        placeholder = "select one algorithm"
+        )
     nur = st.number_input(
             "Number of user to recommend", value=100
             )
@@ -130,7 +135,8 @@ def main_page():
     all_fields_filled = not (
         is_empty(movie_name) or
         is_empty(release_date) or
-        is_empty(movie_genre)
+        is_empty(movie_genre) or
+        is_empty(algo)
     )
     # Controlar o estado do botão "Desconectar"
     disconnect_button_disabled = False
@@ -155,7 +161,7 @@ def main_page():
                 G = create_graph_projection(gds)
             with st.spinner("Building node embeddings..."):
                 # Cria nodes embeddings, usando algorítmo específico
-                emb = create_embeddings(gds, G, 'fastrp')
+                emb = create_embeddings(gds, G, algo)
             with st.spinner("Retrieve node labels..."):
                 all_node_ids = emb['nodeId'].tolist()
                 labels_df = get_node_labels(gds, all_node_ids)
