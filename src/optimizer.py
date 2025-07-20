@@ -64,11 +64,11 @@ class FastrpTuner:
         raw = self.gds.run_cypher(cypher, params={"ids": ids})
         df = pd.DataFrame(raw)
         df_melted = df.melt(
-            id_vars=["movieId", "movieTitle", "relType", "nodeLabel"],
-            value_vars=["genreDesc", "releaseDate"],
-            var_name="attributeType",
-            value_name="attributeValue"
-        ).dropna(subset=["attributeValue"])
+                            id_vars=["movieId", "movieTitle", "relType", "nodeLabel"],
+                            value_vars=["genreDesc", "releaseDate"],
+                            var_name="attributeType",
+                            value_name="attributeValue"
+                        ).dropna(subset=["attributeValue"])
         movies_dict = (
             df_melted[["movieId", "movieTitle"]]
             .drop_duplicates()
@@ -79,3 +79,15 @@ class FastrpTuner:
             sort=False
         )
         return movies_dict, groups
+
+    def _delete_nodes_and_rels(self, ids):
+        """
+        Deletes nodes and all associated relationships
+        based on provided node IDs.
+        """
+        query = """
+        UNWIND $ids AS id
+        MATCH (m:Movie { movieId: id })
+        DETACH DELETE m
+        """
+        self.gds.run_cypher(query, params={"ids": ids})
