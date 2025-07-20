@@ -92,6 +92,10 @@ class FastrpTuner:
         self.gds.run_cypher(query, params={"ids": ids})
     
     def _recreate_movie_nodes(self, movies_dict):
+        """
+        Recreates Movie nodes from a list of dicts, merging on movieId
+        and setting movieTitle only on creation
+        """
         query = """
         UNWIND $movies AS movie
         MERGE (m:Movie {movieId: movie.movieId})
