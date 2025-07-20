@@ -22,7 +22,7 @@ class FastrpTuner:
         os resultados ao final do processo
         '''
 
-    def _movie_nodes_sampling(self, sample_ratio=0.05) -> list:
+    def _sampling_movie_nodes(self, sample_ratio=0.05):
         """
         Randomly samples a fraction of Movie nodes
         and returns a list of their IDs.
@@ -47,8 +47,9 @@ class FastrpTuner:
     
     def _extract_movie_nodes_relations(self, ids):
         """
-        Fetches Movie attribute relationships for given movie IDs and
+        Fetches Movie_attribute relationships for given movie IDs and
         returns the deduplicated movies list and grouped relations.
+        Does not return User_Movie relationships.
         """
         cypher = """
         UNWIND $ids AS movieId
@@ -91,3 +92,22 @@ class FastrpTuner:
         DETACH DELETE m
         """
         self.gds.run_cypher(query, params={"ids": ids})
+
+    def _recreate_movie_attribute_rels(gds, groups):
+        """
+        Batch_recreates Movie_attribute relationships
+        based on grouped data.
+        """
+        for (label, prop, rel), group in groups:
+            batch = (
+                group[["movieId", "attributeValue"]]
+                .rename(columns={"attributeValue": "value"})
+                .to_dict("records")
+            )
+            cypher = f"""
+            UNWIND $batch AS row
+            MATCH (m:Movie {{ movieId: row.movieId }})
+            MERGE (c:`{label}` {{ {prop}: row.value }})
+            MERGE (m)-[:{rel}]->(c)
+            """
+            gds.run_cypher(cypher, params={"batch": batch})
