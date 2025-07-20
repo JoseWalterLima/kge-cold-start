@@ -7,35 +7,33 @@ import pandas as pd
 
 class FastrpTuner:
     #!!TODO!!
-    def __init__(self, gds, config):
+    def __init__(self, gds):#, config):
         #!!TODO!!
-        self.config = config
+        #self.config = config
         self.gds = gds
-        self.resultados = {}
+        #self.resultados = {}
 
-    def run_search(self):
-        #!!TODO!!
-        '''
-        Este será um método público que
-        chamará todos os métodos privados
-        e irá retornar o dicionários com
-        os resultados ao final do processo
-        '''
+    # def run_search(self):
+    #     #!!TODO!!
+    #     '''
+    #     Este será um método público que
+    #     chamará todos os métodos privados
+    #     e irá retornar o dicionários com
+    #     os resultados ao final do processo
+    #     '''
 
     def _sampling_movie_nodes(self, sample_ratio=0.05):
         """
         Randomly samples a fraction of Movie nodes
         and returns a list of their IDs.
         """
-        record = self.gds.run_cypher(
+        total = self.gds.run_cypher(
             "MATCH (m:Movie) RETURN count(m) AS total"
-        )[0]
-        total = record["total"]
+        )['total'][0]
         limit = int(round(total * sample_ratio))
         sampling_cypher = """
             MATCH (m:Movie)
-            WITH m
-            ORDER BY rand()
+            WITH m ORDER BY rand()
             LIMIT $limit
             RETURN m.movieId AS id
             """
@@ -43,7 +41,7 @@ class FastrpTuner:
             sampling_cypher,
             params={"limit": limit}
             )
-        return [row["id"] for row in results]
+        return [row for row in results["id"]]
     
     def _extract_movie_nodes_relations(self, ids):
         """
@@ -92,6 +90,14 @@ class FastrpTuner:
         DETACH DELETE m
         """
         self.gds.run_cypher(query, params={"ids": ids})
+    
+    def _recreate_movie_nodes(self, movies_dict):
+        query = """
+        UNWIND $movies AS movie
+        MERGE (m:Movie {movieId: movie.movieId})
+        ON CREATE SET m.movieTitle = movie.movieTitle
+        """
+        self.gds.run_cypher(query, params={"movies": movies_dict})
 
     def _recreate_movie_attribute_rels(self, groups):
         """
