@@ -122,7 +122,7 @@ class FastrpTuner:
             """
             self.gds.run_cypher(cypher, params={"batch": batch})
     
-    def _recreate_user_movie_rels(self, movie_ids, csv_path="../data/watchedRel.csv"):
+    def _recreate_user_movie_rels(self, movie_ids, csv_path="data/watchedRel.csv"):
         """
         Reads a CSV of User_Movie links, filters for the given movie IDs,
         and recreates WATCHED relationships in the Neo4j graph.
