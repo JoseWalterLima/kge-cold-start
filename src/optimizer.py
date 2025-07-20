@@ -93,7 +93,7 @@ class FastrpTuner:
         """
         self.gds.run_cypher(query, params={"ids": ids})
 
-    def _recreate_movie_attribute_rels(gds, groups):
+    def _recreate_movie_attribute_rels(self, groups):
         """
         Batch_recreates Movie_attribute relationships
         based on grouped data.
@@ -110,4 +110,22 @@ class FastrpTuner:
             MERGE (c:`{label}` {{ {prop}: row.value }})
             MERGE (m)-[:{rel}]->(c)
             """
-            gds.run_cypher(cypher, params={"batch": batch})
+            self.gds.run_cypher(cypher, params={"batch": batch})
+    
+    def _recreate_user_movie_rels(self, movie_ids, csv_path="../data/watchedRel.csv"):
+        """
+        Reads a CSV of User_Movie links, filters for the given movie IDs,
+        and recreates WATCHED relationships in the Neo4j graph.
+        """
+        rels = pd.read_csv(csv_path,
+                         dtype={'userId': str, 'movieId': str}
+                         )
+        rels = rels[rels["movieId"].isin(movie_ids)]
+        rels = rels[['userId', 'movieId']].to_dict("records")
+        cypher = """
+        UNWIND $relations AS rel
+        MATCH (u:User  { userId: rel.userId })
+        MATCH (m:Movie { movieId: rel.movieId })
+        MERGE (u)-[:WATCHED]->(m)
+        """
+        self.gds.run_cypher(cypher, params={"relations": rels})
