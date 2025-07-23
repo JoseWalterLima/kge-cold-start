@@ -11,10 +11,13 @@ from graphdatascience import GraphDataScience
 with open('config.yaml', 'r') as f:
     config = yaml.safe_load(f)
 
+with open('pwd.yaml', 'r') as f:
+    pwd = yaml.safe_load(f)
+
 def get_gds_connection() -> GraphDataScience:
     uri = config['neo4j']['uri']
     user = config['neo4j']['user']
-    pwd = config['neo4j']['pwd']
+    pwd = pwd['neo4j']['pwd']
     timeout = config['neo4j']['timeout']
     try:
         gds = GraphDataScience(

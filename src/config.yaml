@@ -1,0 +1,46 @@
+neo4j:
+  uri: bolt://localhost:7687
+  user: neo4j
+  pwd: JO@ju120390@
+  timeout: 30
+
+node_projection:
+  User:
+    label: User
+  Zipcode:
+    label: Zipcode
+  Age:
+    label: Age
+  Gender:
+    label: Gender
+  Occupation:
+    label: Occupation
+  Movie:
+    label: Movie
+  Genre:
+    label: Genre
+  Release:
+    label: Release
+
+relationship_projection:
+  HAS_AGE:
+    type: HAS_AGE
+    orientation: UNDIRECTED
+  HAS_GENDER:
+    type: HAS_GENDER
+    orientation: UNDIRECTED
+  LABELED:
+    type: LABELED
+    orientation: UNDIRECTED
+  LIVES_IN:
+    type: LIVES_IN
+    orientation: UNDIRECTED
+  OCCUPATION:
+    type: OCCUPATION
+    orientation: UNDIRECTED
+  RELEASED:
+    type: RELEASED
+    orientation: UNDIRECTED
+  WATCHED:
+    type: WATCHED
+    orientation: UNDIRECTED

@@ -1,13 +1,11 @@
 # Author: José Walter Mota
 # 07/2025
-"""
-Need to add a description here!
-"""
+
 from gds_connector import get_gds_connection
 
 class EmbeddingHandler:
     """
-    Encapsula operações de embeddings no Neo4j via GDS.
+    Encapsulates embedding operations in Neo4j via GDS.
     """
     def __init__(self, node_projection, relationship_projection):
         self.gds = get_gds_connection()
