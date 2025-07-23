@@ -13,15 +13,6 @@ class NodeHandler:
         self.gds = gds
         #self.resultados = {}
 
-    # def run_search(self):
-    #     #!!TODO!!
-    #     '''
-    #     Este será um método público que
-    #     chamará todos os métodos privados
-    #     e irá retornar o dicionários com
-    #     os resultados ao final do processo
-    #     '''
-
     def _sampling_movie_nodes(self, sample_ratio=0.05):
         """
         Randomly samples a fraction of Movie nodes
