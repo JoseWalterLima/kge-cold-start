@@ -1,7 +1,6 @@
 neo4j:
   uri: bolt://localhost:7687
   user: neo4j
-  pwd: JO@ju120390@
   timeout: 30
 
 node_projection:
