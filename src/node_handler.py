@@ -6,12 +6,14 @@ Need to add a description here!
 import pandas as pd
 
 class NodeHandler:
-    #!!TODO!!
-    def __init__(self, gds):#, config):
-        #!!TODO!!
-        #self.config = config
+    """
+    GDSNodeHandler manages node-level operations on graphs
+    projected via Neo4j Graph Data Science. It supports tasks
+    like sampling, deletion, and reinsertion of nodes for
+    analytical workflows and knowledge graph preparation.
+    """
+    def __init__(self, gds):
         self.gds = gds
-        #self.resultados = {}
 
     def _sampling_movie_nodes(self, sample_ratio=0.05):
         """
