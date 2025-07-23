@@ -8,22 +8,20 @@ import os
 import yaml
 from graphdatascience import GraphDataScience
 
-with open('config.yaml', 'r') as f:
+with open('src/config.yaml', 'r') as f:
     config = yaml.safe_load(f)
 
-with open('pwd.yaml', 'r') as f:
-    pwd = yaml.safe_load(f)
+with open('src/pwd.yaml', 'r') as f:
+    configpass = yaml.safe_load(f)
 
 def get_gds_connection() -> GraphDataScience:
     uri = config['neo4j']['uri']
     user = config['neo4j']['user']
-    pwd = pwd['neo4j']['pwd']
-    timeout = config['neo4j']['timeout']
+    pwd = configpass['neo4j']['pwd']
     try:
         gds = GraphDataScience(
             uri,
             auth=(user, pwd),
-            timeout=timeout
         )
         gds.run_cypher("RETURN 1")
         return gds
