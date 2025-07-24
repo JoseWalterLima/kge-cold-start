@@ -21,7 +21,7 @@ class UserEmbeddingHandler:
         as a NumPy array.
         """
         projection = self.full_graph_projection()
-        embeddings = self.create_user_fastrp_embeddings(projection, self.params)
+        embeddings = self.create_user_fastrp_embeddings(projection)
         user_ids = self.get_user_node_ids(embeddings)
         return self.create_user_vectors_array(embeddings, user_ids)
     
@@ -64,6 +64,7 @@ class ItemEmbeddingHandler:
     Handles embedding operations for a specific item node in a subgraph.
     """
     def __init__(self, subgraph_projection, target_node_id, params):
+        self.gds = get_gds_connection()
         self.subgraph_projection = subgraph_projection
         self.target_node_id = target_node_id
         self.params = params
