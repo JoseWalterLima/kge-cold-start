@@ -15,7 +15,7 @@ class NodeHandler:
     def __init__(self, gds):
         self.gds = gds
 
-    def _sampling_movie_nodes(self, sample_ratio=0.05):
+    def sampling_movie_nodes(self, sample_ratio=0.05):
         """
         Randomly samples a fraction of Movie nodes
         and returns a list of their IDs.
@@ -36,7 +36,7 @@ class NodeHandler:
             )
         return [row for row in results["id"]]
     
-    def _extract_movie_nodes_relations(self, ids):
+    def extract_movie_nodes_relations(self, ids):
         """
         Fetches Movie_attribute relationships for given movie IDs and
         returns the deduplicated movies list and grouped relations.
@@ -72,7 +72,7 @@ class NodeHandler:
         )
         return movies_dict, groups
 
-    def _delete_nodes_and_rels(self, ids):
+    def delete_nodes_and_rels(self, ids):
         """
         Deletes nodes and all associated relationships
         based on provided node IDs.
@@ -84,7 +84,7 @@ class NodeHandler:
         """
         self.gds.run_cypher(query, params={"ids": ids})
     
-    def _recreate_movie_nodes(self, movies_dict):
+    def recreate_movie_nodes(self, movies_dict):
         """
         Recreates Movie nodes from a list of dicts, merging on movieId
         and setting movieTitle only on creation
@@ -96,7 +96,7 @@ class NodeHandler:
         """
         self.gds.run_cypher(query, params={"movies": movies_dict})
 
-    def _recreate_movie_attribute_rels(self, groups):
+    def recreate_movie_attribute_rels(self, groups):
         """
         Batch_recreates Movie_attribute relationships
         based on grouped data.
@@ -132,3 +132,15 @@ class NodeHandler:
         MERGE (u)-[:WATCHED]->(m)
         """
         self.gds.run_cypher(cypher, params={"relations": rels})
+
+    def create_nove_subgraph():
+        """
+        Placeholder for future method to create node projections.
+        """
+        pass
+
+    def create_node_projection():
+        """
+        Placeholder for future method to create node projections.
+        """
+        pass
