@@ -1,8 +1,7 @@
 # Author: José Walter Mota
 # 07/2025
-"""
-Need to add a description here!
-"""
+
+from gds_connector import get_gds_connection
 import pandas as pd
 
 class NodeHandler:
@@ -12,8 +11,8 @@ class NodeHandler:
     like sampling, deletion, and reinsertion of nodes for
     analytical workflows and knowledge graph preparation.
     """
-    def __init__(self, gds):
-        self.gds = gds
+    def __init__(self):
+        self.gds = get_gds_connection()
 
     def sampling_movie_nodes(self, sample_ratio=0.05):
         """
@@ -133,14 +132,48 @@ class NodeHandler:
         """
         self.gds.run_cypher(cypher, params={"relations": rels})
 
-    def create_nove_subgraph():
-        """
-        Placeholder for future method to create node projections.
-        """
-        pass
+class NodeSubgraphHandler:
+    """ 
+    Handles subgraph operations for a specific node
+    """
+    def __init__(self, movie_id, hops=2):
+        self.gds = get_gds_connection()
+        self.movie_id = movie_id
+        self.hops = hops
 
-    def create_node_projection():
+    def create_node_subgraph_projection(self):
+        """ 
+        Creates a subgraph projection around a specific
+        movie node and returns the projection object. It uses
+        the same hops as the FastRP embedding configuration for
+        the current iteration on the optimization process.
         """
-        Placeholder for future method to create node projections.
+        result = self.gds.run_cypher("""
+        MATCH (n:Movie {movieId: $self.movie_id})
+        OPTIONAL MATCH (n)-[*1..$self.hops]-(m)
+        WITH collect(DISTINCT id(n)) + collect(DISTINCT id(m)) AS allIds
+        UNWIND allIds AS id
+        RETURN DISTINCT id
+        """, params={"movieId": self.movie_id, "hops": self.hops})
+
+        node_ids = result["id"].dropna().unique().tolist()
+
+        node_spec = """
+            UNWIND $nodeIds AS id
+            RETURN id
         """
-        pass
+
+        relationship_spec = """
+            MATCH (n)-[r]-(m)
+            WHERE id(n) IN $nodeIds AND id(m) IN $nodeIds
+            RETURN id(n) AS source, id(m) AS target, type(r) AS type
+        """
+
+        # Projection of the Sub Graph
+        projection, metadata = self.gds.graph.project.cypher(
+            "subgraph_projection",
+            node_spec,
+            relationship_spec,
+            parameters={"nodeIds": node_ids}
+        )
+        return projection
