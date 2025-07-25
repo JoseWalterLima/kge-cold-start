@@ -134,7 +134,7 @@ class NodeHandler:
 
 class NodeSubgraphHandler:
     """ 
-    Handles subgraph operations for a specific node
+    Handles specific node subgraph construction and projections. 
     """
     def __init__(self, movie_id, hops=2):
         self.gds = get_gds_connection()
