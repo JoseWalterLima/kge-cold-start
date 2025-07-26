@@ -54,8 +54,8 @@ class UserEmbeddingHandler:
         """
         dfjoin = dfembedding.merge(dfids, how='inner', on='nodeId'
                           )[['userId','embedding']]
-        return dfjoin["userId"].astype('int64').to_numpy(), \
-            np.stack(dfjoin["embedding"].values)
+        return [dfjoin["userId"].astype('int64').to_numpy(), \
+            np.stack(dfjoin["embedding"].values)]
 
 class ItemEmbeddingHandler:
     """
@@ -71,7 +71,7 @@ class ItemEmbeddingHandler:
         subgraph_vectors = self.create_item_fastrp_embedding()
         item_vector = self.filter_target_embedding(subgraph_vectors)
         item_id = self.get_item_node_id()
-        return np.array(item_id), np.array(item_vector)
+        return [np.array(item_id), np.array(item_vector)]
 
     def create_item_fastrp_embedding(self):
         try:

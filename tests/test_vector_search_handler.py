@@ -20,11 +20,13 @@ def test_vector_retriever_cosine():
     item_array = (item_id, item_vector)
 
     retriever = VectorRetriever(item_array, users_array, method='cosine', length=2)
-    returned_item_id, ordered_user_ids = retriever.retrieve_users()
+    returned_item_user_ids = retriever.retrieve_users()
 
-    assert returned_item_id == 201
-    assert len(ordered_user_ids) == 2
-    assert all(uid in user_ids for uid in ordered_user_ids)
+    assert returned_item_user_ids[0] == 201
+    assert returned_item_user_ids[1][0] == 102
+    assert len(returned_item_user_ids[1]) == 2
+    assert all(uid in user_ids for uid in returned_item_user_ids[1])
+    
 
 def test_vector_retriever_euclidean():
     user_ids = np.array([201, 202, 203])
@@ -40,8 +42,10 @@ def test_vector_retriever_euclidean():
     item_array = (item_id, item_vector)
 
     retriever = VectorRetriever(item_array, users_array, method='euclidean', length=2)
-    returned_item_id, ordered_user_ids = retriever.retrieve_users()
+    returned_item_user_ids = retriever.retrieve_users()
 
-    assert returned_item_id == 301
-    assert len(ordered_user_ids) == 2
-    assert all(uid in user_ids for uid in ordered_user_ids)
+    assert returned_item_user_ids[0] == 301
+    assert returned_item_user_ids[1][0] == 203
+    assert len(returned_item_user_ids[1]) == 2
+    assert all(uid in user_ids for uid in returned_item_user_ids[1])
+
