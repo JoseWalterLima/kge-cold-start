@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 import numpy as np
 import pandas as pd
 from unittest.mock import patch, MagicMock
@@ -35,12 +38,10 @@ def test_integration_user_embedding_with_node_sampling(mock_gds_emb, mock_gds_no
     assert len(sampled_movie_ids) > 0
 
     # Use UserEmbeddingHandler to get user embeddings
-    user_emb_handler = UserEmbeddingHandler(
-        node_projection={"User": {"label": "User"}},
-        relationship_projection={"REL": {"type": "REL", "orientation": "UNDIRECTED"}},
-        params={"embeddingDimension": 2}
-    )
-    user_ids, embeddings = user_emb_handler.create_user_vectors()
+    user_emb_handler = UserEmbeddingHandler(params={"embeddingDimension": 2})
+    user_emb_handler.node_projection = {"User": {"label": "User"}}
+    user_emb_handler.relationship_projection = {"REL": {"type": "REL", "orientation": "UNDIRECTED"}}
+    user_ids, embeddings = user_emb_handler.create_user_vectors_array()
     assert isinstance(user_ids, list)
     assert isinstance(embeddings, np.ndarray)
     assert embeddings.shape[1] == 2
@@ -60,6 +61,8 @@ def test_integration_item_embedding_with_subgraph(mock_gds_emb, mock_gds_node):
         "nodeId": [1, 2, 3],
         "embedding": [np.array([0.1, 0.2]), np.array([0.3, 0.4]), np.array([0.5, 0.6])]
     })
+    # Mock para consulta do node_id
+    gds_emb.run_cypher.return_value = pd.DataFrame({"nodeId": [2]})
     mock_gds_emb.return_value = gds_emb
 
     # Use NodeSubgraphHandler to create a subgraph projection
@@ -73,5 +76,6 @@ def test_integration_item_embedding_with_subgraph(mock_gds_emb, mock_gds_node):
         target_node_id=2,
         params={"embeddingDimension": 2}
     )
-    embedding = item_emb_handler.create_item_vector()
+    item_id, embedding = item_emb_handler.create_item_vector_array()
+    assert item_id == 2
     assert np.allclose(embedding, np.array([0.3, 0.4]))

@@ -8,13 +8,11 @@ class UserEmbeddingHandler:
     """
     Encapsulates embedding operations in Neo4j via GDS.
     """
-    def __init__(self, node_projection, relationship_projection, params):
+    def __init__(self, params):
         self.gds = get_gds_connection()
-        self.node_projection = node_projection
-        self.relationship_projection = relationship_projection
         self.params = params
 
-    def create_user_vectors(self):
+    def create_user_vectors_array(self):
         """
         Project the full graph, generate FastRP embeddings,
         and return the user ids as a list and their embeddings
@@ -23,7 +21,7 @@ class UserEmbeddingHandler:
         projection = self.full_graph_projection()
         embeddings = self.create_user_fastrp_embeddings(projection)
         user_ids = self.get_user_node_ids(embeddings)
-        return self.create_user_vectors_array(embeddings, user_ids)
+        return self.create_user_vectors(embeddings, user_ids)
     
     def full_graph_projection(self):
         graph_name = "full_graph_projection"
@@ -40,7 +38,7 @@ class UserEmbeddingHandler:
         except Exception as e:
             raise RuntimeError(f"FastRP failed: {e}")
 
-    def get_user_node_ids(self, embedding):
+    def get_user_node_ids(self, embedding_df):
         query = """
         UNWIND $node_ids AS id
         MATCH (n)
@@ -48,9 +46,9 @@ class UserEmbeddingHandler:
         RETURN id(n) AS nodeId, n.userId AS userId
         """
         return self.gds.run_cypher(query, {'node_ids':
-                            [id for id in embedding['nodeId']]})
+                            [id for id in embedding_df['nodeId']]})
 
-    def create_user_vectors_array(self, dfembedding, dfids):
+    def create_user_vectors(self, dfembedding, dfids):
         """
         Creates arrays of user vectors and a list of their original user IDs.
         """
@@ -69,9 +67,11 @@ class ItemEmbeddingHandler:
         self.target_node_id = target_node_id
         self.params = params
 
-    def create_item_vector(self):
+    def create_item_vector_array(self):
         subgraph_vectors = self.create_item_fastrp_embedding()
-        return self.filter_target_embedding(subgraph_vectors)
+        item_vector = self.filter_target_embedding(subgraph_vectors)
+        item_id = self.get_item_node_id()
+        return item_id, np.array(item_vector)
 
     def create_item_fastrp_embedding(self):
         try:
@@ -87,3 +87,14 @@ class ItemEmbeddingHandler:
         if filtered.empty:
             raise ValueError(f"No embedding found for nodeId {self.target_node_id}")
         return filtered.iloc[0]['embedding']
+    
+    def get_item_node_id(self):
+        query = """
+        UNWIND $node_id AS id
+        MATCH (n)
+        WHERE id(n) = id
+        RETURN id(n) AS nodeId
+        """
+        return self.gds.run_cypher(query, {'node_id': self.target_node_id}
+                                   )["nodeId"].iloc[0]
+
