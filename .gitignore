@@ -2,6 +2,10 @@ env/
 kgenv/
 data/
 experiments/
+notebooks/
 *.ipynb
 *.csv
 __pycache__/
+pwd.yaml
+src/tuner_test.py
+
