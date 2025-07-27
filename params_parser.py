@@ -1,5 +1,6 @@
 from pydantic import BaseModel, model_validator
 from typing import List
+from itertools import product
 
 class HyperparamValidator(BaseModel):
     embeddingDimension: List[int]
@@ -27,5 +28,23 @@ class HyperparamValidator(BaseModel):
             raise ValueError(f"Unsupported method(s): {methods}")
 
         return values
-    
-#class ParamsParser:
+
+class HyperparamCombinator:
+    def __init__(self, hyperparams: HyperparamValidator):
+        self.hyperparams = hyperparams
+
+    def generate_combinations(self):
+        combinations = list(product(
+            self.hyperparams.embeddingDimension,
+            self.hyperparams.normalizationStrength,
+            self.hyperparams.iterationWeights,
+        ))
+        return [
+            {
+                "embeddingDimension": dim,
+                "normalizationStrength": norm,
+                "iterationWeights": weights,
+                "method": self.hyperparams.method
+            }
+            for dim, norm, weights in combinations
+        ]
