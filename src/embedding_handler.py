@@ -34,7 +34,8 @@ class UserEmbeddingHandler:
 
     def create_user_fastrp_embeddings(self, projection):
         try:
-            return self.gds.fastRP.stream(projection, **self.params)
+            return self.gds.fastRP.stream(
+                projection, randomSeed=42, **self.params)
         except Exception as e:
             raise RuntimeError(f"FastRP failed: {e}")
 
@@ -75,7 +76,8 @@ class ItemEmbeddingHandler:
 
     def create_item_fastrp_embedding(self):
         try:
-            return self.gds.fastRP.stream(self.subgraph_projection, **self.params)
+            return self.gds.fastRP.stream(
+                self.subgraph_projection, randomSeed=42, **self.params)
         except Exception as e:
             raise RuntimeError(f"FastRP failed: {e}")
 
