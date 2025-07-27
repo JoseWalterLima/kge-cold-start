@@ -71,11 +71,12 @@ class ReportHandler:
     of the experiments in a JSON file and allow to retrieve the best configuration
     based on the highest value of a specific metric at a specific k.
     """
-    def __init__(self, hyperparameters:dict, method:str, metrics:dict, exp_dir='experiments/'):
+    def __init__(self, hyperparameters:dict, method:str, metrics:dict, exp_dir='experiments/', timestamp=str):
         self.hyperparameters = hyperparameters
         self.method = method
         self.metrics = metrics
         self.exp_dir = exp_dir
+        self.timestamp = timestamp
 
     def save_report(self, exp_id:str):
         experiment = {
@@ -86,7 +87,7 @@ class ReportHandler:
         }
 
         os.makedirs(self.exp_dir, exist_ok=True)
-        file_path = os.path.join(self.exp_dir, "item_cold_start_report.json")
+        file_path = os.path.join(self.exp_dir, f"{self.timestamp}_report.json")
         if os.path.exists(file_path):
             with open(file_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
@@ -105,7 +106,7 @@ class ReportHandler:
         Returns:
             dict: The experiment with the best metric value, or None if not found.
         """
-        file_path = os.path.join(self.exp_dir, "item_cold_start_report.json")
+        file_path = os.path.join(self.exp_dir, f"{self.timestamp}_report.json")
         with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 

@@ -43,8 +43,8 @@ def test_reporthandler_save_and_get_best_config(tmp_path):
     os.makedirs(exp_dir, exist_ok=True)
     metrics1 = {"precision_at_k_10": 0.5, "ndcg_at_k_10": 0.7}
     metrics2 = {"precision_at_k_10": 0.8, "ndcg_at_k_10": 0.9}
-    rh1 = ReportHandler({"lr": 0.01}, "methodA", metrics1, exp_dir=str(exp_dir))
-    rh2 = ReportHandler({"lr": 0.02}, "methodB", metrics2, exp_dir=str(exp_dir))
+    rh1 = ReportHandler({"lr": 0.01}, "methodA", metrics1, exp_dir=str(exp_dir), timestamp="2027-07-27-12-00")
+    rh2 = ReportHandler({"lr": 0.02}, "methodB", metrics2, exp_dir=str(exp_dir), timestamp="2027-07-27-12-00")
 
     # Save two experiment reports
     rh1.save_report("exp1")
@@ -66,8 +66,8 @@ def test_reporthandler_save_and_get_best_config_with_list_metrics(tmp_path):
     os.makedirs(exp_dir, exist_ok=True)
     metrics1 = [0.4, 0.6]  # [precision_at_k_10, ndcg_at_k_10]
     metrics2 = [0.9, 0.8]
-    rh1 = ReportHandler({"param": 1}, "methodX", metrics1, exp_dir=str(exp_dir))
-    rh2 = ReportHandler({"param": 2}, "methodY", metrics2, exp_dir=str(exp_dir))
+    rh1 = ReportHandler({"param": 1}, "methodX", metrics1, exp_dir=str(exp_dir), timestamp="2027-07-27-12-02")
+    rh2 = ReportHandler({"param": 2}, "methodY", metrics2, exp_dir=str(exp_dir), timestamp="2027-07-27-12-02")
 
     # Save two experiment reports
     rh1.save_report("expA")
