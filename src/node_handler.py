@@ -183,6 +183,7 @@ class NodeSubgraphHandler:
         """
 
         # Projection of the Sub Graph
+        self.gds.graph.drop('subgraph_projection', True)
         projection, metadata = self.gds.graph.project.cypher(
             "subgraph_projection",
             node_spec,

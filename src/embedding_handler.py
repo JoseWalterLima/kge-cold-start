@@ -24,6 +24,7 @@ class UserEmbeddingHandler:
         return self.create_user_vectors(embeddings, user_ids)
     
     def full_graph_projection(self):
+        self.gds.graph.drop('full_graph_projection', True)
         graph_name = "full_graph_projection"
         projection, metadata = self.gds.graph.project(
             graph_name,
