@@ -8,25 +8,24 @@ class HyperparamValidator(BaseModel):
     method: List[str]
 
     @model_validator(mode='before')
-    def check_consistent_lengths(cls, values):
+    def validate_all(cls, values):
         dims = values.get("embeddingDimension")
         norms = values.get("normalizationStrength")
         weights = values.get("iterationWeights")
-
-        if any(x is None for x in [dims, norms, weights]):
-            raise ValueError("Missing required fields for length check.")
-
-        lengths = [len(dims), len(norms), len(weights)]
-        if len(set(lengths)) > 1:
-            raise ValueError(f"Inconsistent lengths: {lengths}")
-        return values
-
-    @model_validator(mode='before')
-    def validate_methods(cls, values):
-        allowed = {"cosine", "euclidean"}
         methods = values.get("method")
+        allowed = {"cosine", "euclidean"}
+
+        if any(x is None for x in [dims, norms, weights, methods]):
+            raise ValueError("Do not allow None values.")
+
+        for param in [dims, norms, weights]:
+            if isinstance(param, list):
+                if any(isinstance(i, str) for i in param):
+                    raise ValueError("Do not allow string values inside lists of numbers.")
+
         if not isinstance(methods, list) or not all(m in allowed for m in methods):
             raise ValueError(f"Unsupported method(s): {methods}")
+
         return values
     
 #class ParamsParser:
