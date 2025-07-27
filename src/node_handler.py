@@ -14,17 +14,30 @@ class NodeHandler:
     def __init__(self):
         self.gds = get_gds_connection()
 
+    def hold_and_remove_movies_sample(self, sample_ratio=0.05):
+        ids = self.sampling_movie_nodes(sample_ratio)
+        movies_id_name, movie_id_caracteristcs = self.extract_movie_nodes_relations(ids)
+        self.delete_nodes_and_rels(ids)
+        return movies_id_name, movie_id_caracteristcs
+
     def sampling_movie_nodes(self, sample_ratio=0.05):
         """
         Randomly samples a fraction of Movie nodes
-        and returns a list of their IDs.
+        with at least 50 user connections and returns a list of their IDs.
         """
         total = self.gds.run_cypher(
-            "MATCH (m:Movie) RETURN count(m) AS total"
+            """
+            MATCH (m:Movie)-[:WATCHED]-(:User)
+            WITH m, count(*) AS user_count
+            WHERE user_count >= 50
+            RETURN count(m) AS total
+            """
         )['total'][0]
         limit = int(round(total * sample_ratio))
         sampling_cypher = """
-            MATCH (m:Movie)
+            MATCH (m:Movie)-[:WATCHED]-(:User)
+            WITH m, count(*) AS user_count
+            WHERE user_count >= 50
             WITH m ORDER BY rand()
             LIMIT $limit
             RETURN m.movieId AS id
@@ -60,16 +73,16 @@ class NodeHandler:
                             var_name="attributeType",
                             value_name="attributeValue"
                         ).dropna(subset=["attributeValue"])
-        movies_dict = (
+        movies_id_name = (
             df_melted[["movieId", "movieTitle"]]
             .drop_duplicates()
             .to_dict("records")
         )
-        groups = df_melted.groupby(
+        movie_id_caracteristcs = df_melted.groupby(
             ["nodeLabel", "attributeType", "relType"],
             sort=False
         )
-        return movies_dict, groups
+        return movies_id_name, movie_id_caracteristcs
 
     def delete_nodes_and_rels(self, ids):
         """
@@ -83,7 +96,7 @@ class NodeHandler:
         """
         self.gds.run_cypher(query, params={"ids": ids})
     
-    def recreate_movie_nodes(self, movies_dict):
+    def recreate_movie_nodes(self, movies_id_name):
         """
         Recreates Movie nodes from a list of dicts, merging on movieId
         and setting movieTitle only on creation
@@ -93,14 +106,14 @@ class NodeHandler:
         MERGE (m:Movie {movieId: movie.movieId})
         ON CREATE SET m.movieTitle = movie.movieTitle
         """
-        self.gds.run_cypher(query, params={"movies": movies_dict})
+        self.gds.run_cypher(query, params={"movies": movies_id_name})
 
-    def recreate_movie_attribute_rels(self, groups):
+    def recreate_movie_attribute_rels(self, movie_id_caracteristcs):
         """
         Batch_recreates Movie_attribute relationships
         based on grouped data.
         """
-        for (label, prop, rel), group in groups:
+        for (label, prop, rel), group in movie_id_caracteristcs:
             batch = (
                 group[["movieId", "attributeValue"]]
                 .rename(columns={"attributeValue": "value"})
