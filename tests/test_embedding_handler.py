@@ -27,7 +27,7 @@ def test_user_embedding_handler(create_gds):
     handler.node_projection = {"User": {"label": "User"}}
     handler.relationship_projection = {"REL": {"type": "REL", "orientation": "UNDIRECTED"}}
     user_ids, embeddings = handler.create_user_vectors_array()
-    assert user_ids == [10, 20]
+    assert np.array_equal(user_ids, [10, 20])
     assert isinstance(embeddings, np.ndarray)
     assert embeddings.shape == (2, 2)
 

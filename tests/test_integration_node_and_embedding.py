@@ -42,7 +42,7 @@ def test_integration_user_embedding_with_node_sampling(mock_gds_emb, mock_gds_no
     user_emb_handler.node_projection = {"User": {"label": "User"}}
     user_emb_handler.relationship_projection = {"REL": {"type": "REL", "orientation": "UNDIRECTED"}}
     user_ids, embeddings = user_emb_handler.create_user_vectors_array()
-    assert isinstance(user_ids, list)
+    assert isinstance(user_ids, np.ndarray)
     assert isinstance(embeddings, np.ndarray)
     assert embeddings.shape[1] == 2
 
