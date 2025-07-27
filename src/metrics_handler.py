@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import json
+import os
 
 class EvaluationHandler:
     """
@@ -10,23 +12,25 @@ class EvaluationHandler:
     def __init__(self, item_users_id_array, path ='data/watchedRel.csv'):
         self.item_users_id_array = item_users_id_array
         self.path = path
-        
-    def calculate_metrics(self, k=100):
-        """
-        Calculate precision at k and ndcg at k for the retrieved users.
-        """
-        actual_users = self._retrive_actual_users()
-        precision_at_k = self._calculate_precision_at_k(actual_users, k)
-        ndcg_at_k = self._calculate_ndcg_at_k(actual_users, k)
-        return [precision_at_k, ndcg_at_k]
 
-    def _retrive_actual_users(self):
+    def retrive_actual_users(self):
         """
-        Retrieve the actual users who watched the movie (item).
+        Retrieve the actual users who watched the movie (item). This
+        is a public method to allow store the actual users in a variable
+        for enhancing metrics calculation at different values of k.
         """
         actual_users = pd.read_csv(self.path, dtype={'userId': int, 'movieId': int})
         return actual_users[
             actual_users["movieId"].isin(self.item_users_id_array[0][0])]['userId'].to_numpy()
+
+    def calculate_metrics(self, actual_users, k=100):
+        """
+        Calculate precision at k and ndcg at k for the retrieved users.
+        """
+        actual_users = actual_users
+        precision_at_k = self._calculate_precision_at_k(actual_users, k)
+        ndcg_at_k = self._calculate_ndcg_at_k(actual_users, k)
+        return [precision_at_k, ndcg_at_k]
 
     def _calculate_precision_at_k(self, actual_users, k):
         """
@@ -62,4 +66,68 @@ class EvaluationHandler:
 
 class ReportHandler:
     """
+    Forat and save the report of the experiments with the hyperparameters,
+    retrieval method and metrics. This class is used to save the report
+    of the experiments in a JSON file and allow to retrieve the best configuration
+    based on the highest value of a specific metric at a specific k.
     """
+    def __init__(self, hyperparameters:dict, method:str, metrics:dict, exp_dir='experiments/'):
+        self.hyperparameters = hyperparameters
+        self.method = method
+        self.metrics = metrics
+        self.exp_dir = exp_dir
+
+    def save_report(self, exp_id:str):
+        experiment = {
+            "experiment_id": exp_id,
+            "hyperparams": self.hyperparameters,
+            "retrieval_method": self.method,
+            "metrics": self.metrics
+        }
+
+        os.makedirs(self.exp_dir, exist_ok=True)
+        file_path = os.path.join(self.exp_dir, "item_cold_start_report.json")
+        if os.path.exists(file_path):
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        else:
+            data = []
+        data.append(experiment)
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4)
+    
+    def get_best_config(self, metric: str, k=100):
+        """
+        Retrieve the best configuration based on the highest value of a specific metric at a specific k.
+        Args:
+            metric (str): The metric name to search for (e.g., "precision_at_k", "ndcg_at_k").
+            k (int): The value of k to consider.
+        Returns:
+            dict: The experiment with the best metric value, or None if not found.
+        """
+        file_path = os.path.join(self.exp_dir, "item_cold_start_report.json")
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        best_exp = None
+        best_value = float('-inf')
+        for exp in data:
+            metrics = exp.get("metrics", {})
+            # Support both list and dict metrics
+            value = None
+            if isinstance(metrics, dict):
+                # If metrics are stored as dict: { "precision_at_k_10": 0.5, ... }
+                key = f"{metric}_{k}" if not metric.endswith(f"_{k}") else metric
+                value = metrics.get(key)
+            elif isinstance(metrics, list):
+                # If metrics are stored as list: [precision_at_k, ndcg_at_k, ...]
+                # Assume order: [precision_at_k, ndcg_at_k]
+                metric_map = {f"precision_at_k_{k}": 0, f"ndcg_at_k_{k}": 1}
+                idx = metric_map.get(f"{metric}_{k}")
+                if idx is not None and len(metrics) > idx:
+                    value = metrics[idx]
+            if value is not None and value > best_value:
+                best_value = value
+                best_exp = exp
+
+        return best_exp 
