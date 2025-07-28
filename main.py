@@ -1,8 +1,10 @@
 import sys
 import json
 from params_parser import HyperparamValidator, HyperparamCombinator
-from src.node_handler import NodeHandler, NodeSubgraphHandler
-from src.embedding_handler import UserEmbeddingHandler, ItemEmbeddingHandler
+from node_handler import NodeHandler, NodeSubgraphHandler
+from embedding_handler import UserEmbeddingHandler, ItemEmbeddingHandler
+from vector_search_handler import VectorRetriever
+from metrics_handler import EvaluationHandler
 
 def main():  
   # load JSON file with hyperparameters
@@ -35,15 +37,41 @@ def main():
           # using the current hyperparameters combination
           embedding_handler = UserEmbeddingHandler(fasrp_params)
           user_vectors_array = embedding_handler.create_user_vectors_array()
-          # PAREI NA FUNÇÃO 7 DA LÓGICA!!
-
-
-
-
-
-
-
-
+          evaluations = []
+          for node in val_ids_names:
+              node_handler.recreate_movie_nodes(node)
+              node_handler.recreate_movie_attribute_rels(node, test_ids_caracteristcs[node["movieId"]])
+              sub_graph_handler = NodeSubgraphHandler(node["movieId"], len_hops)
+              node_subgraph_projection = sub_graph_handler.create_node_subgraph_projection()
+              node_embedding_handler = ItemEmbeddingHandler(
+                  node["movieId"], node_subgraph_projection, fasrp_params)
+              node_array = node_embedding_handler.create_item_vectors_array()
+              for method in search_methods:
+                  node_vec_retriever = VectorRetriever(node_array, user_vectors_array, method=method, length=50)
+                  rec_users = node_vec_retriever.retrieve_users()
+                  node_evaluation = EvaluationHandler(rec_users)
+                  real_users = node_evaluation.retrive_actual_users()
+                  for k in [10, 20, 50]:
+                      get_metrics = node_evaluation.calculate_metrics(real_users)
+                      # During iteration:
+                      evaluations.append({
+                          "cutoff": k,
+                          "precision": get_metrics[0],
+                          "ndcg": get_metrics[1]
+                      })
+              # Calculate average precision at k for the current node
+              precision_10 = [e["precision"] for e in evaluations if e["cutoff"] == 10]
+              average_10 = sum(precision_10) / len(precision_10)
+              ndcg_10 = [e["ndcg"] for e in evaluations if e["cutoff"] == 10]
+              average_ndcg_10 = sum(ndcg_10) / len(ndcg_10)
+              precision_20 = [e["precision"] for e in evaluations if e["cutoff"] == 20]
+              average_20 = sum(precision_20) / len(precision_20)
+              ndcg_20 = [e["ndcg"] for e in evaluations if e["cutoff"] == 20]
+              average_ndcg_20 = sum(ndcg_20) / len(ndcg_20)
+              precision_50 = [e["precision"] for e in evaluations if e["cutoff"] == 50]
+              average_50 = sum(precision_50) / len(precision_50)
+              ndcg_50 = [e["ndcg"] for e in evaluations if e["cutoff"] == 50]
+              average_ndcg_50 = sum(ndcg_50) / len(ndcg_50)
 
   # Exception handling for invalid parameters and hyperparameters
   except Exception as e:
