@@ -71,19 +71,16 @@ class ReportHandler:
     of the experiments in a JSON file and allow to retrieve the best configuration
     based on the highest value of a specific metric at a specific k.
     """
-    def __init__(self, hyperparameters:dict, method:str, metrics:dict, exp_dir='experiments/', timestamp=str):
-        self.hyperparameters = hyperparameters
-        self.method = method
-        self.metrics = metrics
+    def __init__(self, exp_dir='experiments/', timestamp=str):
         self.exp_dir = exp_dir
         self.timestamp = timestamp
 
-    def save_report(self, exp_id:str):
+    def save_report(self, hyperparameters:dict, method:str, metrics:dict, exp_id:str):
         experiment = {
             "experiment_id": exp_id,
-            "hyperparams": self.hyperparameters,
-            "retrieval_method": self.method,
-            "metrics": self.metrics
+            "hyperparams": hyperparameters,
+            "retrieval_method": method,
+            "metrics": metrics
         }
 
         os.makedirs(self.exp_dir, exist_ok=True)
