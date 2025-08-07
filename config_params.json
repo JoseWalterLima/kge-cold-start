@@ -1,6 +1,6 @@
 {
-  "embeddingDimension": [128, 256],
+  "embeddingDimension": [128],
   "normalizationStrength": [-0.5],
-  "iterationWeights": [[0, 0.2], [0.5, 0.3, 0.2]],
+  "iterationWeights": [[0, 0.2]],
   "method": ["cosine", "euclidean"]
 }

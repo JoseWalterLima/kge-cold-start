@@ -2,10 +2,10 @@ import sys
 import json
 import time
 from params_parser import HyperparamValidator, HyperparamCombinator
-from node_handler import NodeHandler, NodeSubgraphHandler
-from embedding_handler import UserEmbeddingHandler, ItemEmbeddingHandler
-from vector_search_handler import VectorRetriever
-from metrics_handler import EvaluationHandler, ReportHandler
+from src.node_handler import NodeHandler, NodeSubgraphHandler
+from src.embedding_handler import UserEmbeddingHandler, ItemEmbeddingHandler
+from src.vector_search_handler import VectorRetriever
+from src.metrics_handler import EvaluationHandler, ReportHandler
 from collections import defaultdict
 
 def main():  
@@ -23,6 +23,7 @@ def main():
     # and sampling graph and generate the Test Set 
     node_handler = NodeHandler()
     test_ids_names, test_ids_caracteristcs = node_handler.hold_and_remove_movies_sample()
+    print("Test Sampling complete.")
 
     # Iterate through all combinations of hyperparameters
     # sampling the remaing nodes and generating the Train/Validation Set
@@ -37,17 +38,24 @@ def main():
         search_methods = combination['method']
         # Hold validation set to evaluate current hyperparameters combination
         val_ids_names, val_ids_caracteristcs = node_handler.hold_and_remove_movies_sample()
+        print("Validation Sampling complete.")
 
         # Create embeddings for all User nodes remaining in the graph
         # using the current hyperparameters combination
         embedding_handler = UserEmbeddingHandler(fasrp_params)
         user_vectors_array = embedding_handler.create_user_vectors_array()
+        print("Embedding created for all users.")
         evaluations = []
         for node in val_ids_names:
             node_handler.recreate_movie_nodes(node)
-            node_handler.recreate_movie_attribute_rels(node, test_ids_caracteristcs[node["movieId"]])
+            print(f"Node {node['movieId']} recreated.")
+            node_handler.recreate_movie_attribute_rels(
+                val_ids_caracteristcs[val_ids_caracteristcs["movieId"] == node["movieId"]])
+            print(f"Node {node['movieId']} attributes recreated.")
             sub_graph_handler = NodeSubgraphHandler(node["movieId"], len_hops)
+            print(f"Subgraph for node {node['movieId']} created.")
             node_subgraph_projection = sub_graph_handler.create_node_subgraph_projection()
+            print(f"Subgraph projection for node {node['movieId']} created.")
             node_embedding_handler = ItemEmbeddingHandler(
                 node["movieId"], node_subgraph_projection, fasrp_params)
             node_array = node_embedding_handler.create_item_vectors_array()

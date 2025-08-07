@@ -1,7 +1,8 @@
 # Author: José Walter Mota
 # 07/2025
 
-from gds_connector import get_gds_connection
+from src.gds_connector import get_gds_connection
+import yaml
 import numpy as np
 
 class UserEmbeddingHandler:
@@ -23,13 +24,19 @@ class UserEmbeddingHandler:
         user_ids = self.get_user_node_ids(embeddings)
         return self.create_user_vectors(embeddings, user_ids)
     
-    def full_graph_projection(self):
-        self.gds.graph.drop('full_graph_projection', True)
+    def full_graph_projection(self, config_path="src/config.yaml"):
+        # load graph projection configuration from YAML file
+        with open(config_path, "r", encoding="utf-8") as f:
+            cfg = yaml.safe_load(f)
+        node_projection = cfg.get("node_projection")
+        relationship_projection = cfg.get("relationship_projection")
+        # check if graph projection already exists and drop it
+        self.gds.graph.drop('full_graph_projection', False)
         graph_name = "full_graph_projection"
         projection, metadata = self.gds.graph.project(
             graph_name,
-            self.node_projection,
-            self.relationship_projection
+            node_projection,
+            relationship_projection
         )
         return projection
 
