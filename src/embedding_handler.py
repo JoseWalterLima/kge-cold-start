@@ -73,7 +73,7 @@ class ItemEmbeddingHandler:
     def __init__(self, subgraph_projection, target_node_id, params):
         self.gds = get_gds_connection()
         self.subgraph_projection = subgraph_projection
-        self.target_node_id = target_node_id
+        self.target_node_id = int(target_node_id)
         self.params = params
 
     def create_item_vector_array(self):

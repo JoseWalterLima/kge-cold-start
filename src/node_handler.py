@@ -163,8 +163,10 @@ class NodeSubgraphHandler:
         """
         result = self.gds.run_cypher(f"""
         MATCH (n:Movie {{movieId: $movie_id}})
+        WITH id(n) AS targetId
         OPTIONAL MATCH (n)-[*1..{self.hops}]-(m)
-        WITH collect(DISTINCT id(n)) + collect(DISTINCT id(m)) AS allIds
+        WITH collect(DISTINCT id(m)) AS neighborIds, targetId
+        WITH [targetId] + neighborIds AS allIds
         UNWIND allIds AS id
         RETURN DISTINCT id
         """, params={"movie_id": self.movie_id})

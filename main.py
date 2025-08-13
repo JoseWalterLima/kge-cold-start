@@ -24,6 +24,7 @@ def main():
     node_handler = NodeHandler()
     test_ids_names, test_ids_caracteristcs = node_handler.hold_and_remove_movies_sample()
     print("Test Sampling complete.")
+    print(len(test_ids_names), "test nodes sampled.")
 
     # Iterate through all combinations of hyperparameters
     # sampling the remaing nodes and generating the Train/Validation Set
@@ -39,6 +40,7 @@ def main():
         # Hold validation set to evaluate current hyperparameters combination
         val_ids_names, val_ids_caracteristcs = node_handler.hold_and_remove_movies_sample()
         print("Validation Sampling complete.")
+        print(len(val_ids_names), "validation nodes sampled.")
 
         # Create embeddings for all User nodes remaining in the graph
         # using the current hyperparameters combination
@@ -57,15 +59,25 @@ def main():
             node_subgraph_projection = sub_graph_handler.create_node_subgraph_projection()
             print(f"Subgraph projection for node {node['movieId']} created.")
             node_embedding_handler = ItemEmbeddingHandler(
-                node["movieId"], node_subgraph_projection, fasrp_params)
-            node_array = node_embedding_handler.create_item_vectors_array()
+                node_subgraph_projection, node["movieId"], fasrp_params)
+            print(f"Embeddings for node {node['movieId']} created.")
+            node_array = node_embedding_handler.create_item_vector_array()
+            print(f"Array for node {node['movieId']} created.")
+            # Iterate through all search methods for the current node
             for method in search_methods:
+                print(f"Running with method: {method}.")
                 node_vec_retriever = VectorRetriever(node_array, user_vectors_array, method=method, length=50)
+                print('Instantiate VectorRetriever.')
                 rec_users = node_vec_retriever.retrieve_users()
+                print('Retrieve users completed.')
                 node_evaluation = EvaluationHandler(rec_users)
+                print('Instantiate EvaluationHandler.')
                 real_users = node_evaluation.retrive_actual_users()
+                print("Actual users retrieved.")
+                print("Usuários recomendados:", rec_users)
+                print("Usuários reais:", real_users)
                 for k in [10, 20, 50]:
-                    get_metrics = node_evaluation.calculate_metrics(real_users)
+                    get_metrics = node_evaluation.calculate_metrics(real_users, k)
                     # During iteration:
                     evaluations.append({
                         "cutoff": k,
@@ -73,6 +85,13 @@ def main():
                         "ndcg": get_metrics[1],
                         "method": method,
                     })
+                print(evaluations)
+                sys.exit("Exiting for debug")
+                # ATÉ AQUI ESTÁ TUDO OK, AGORA VOU DEBUGGAR A MÉDIA DAS MÉTRICAS
+                # PARA CADA MÉTODO E CADA CORTES CONSIDERANDO TODOS OS NÓS DE VALIDAÇÃO
+
+
+
     # Calculate average metrics for group of nodes, metod and cutoff
     grouped = defaultdict(lambda: defaultdict(list))
     for e in evaluations:
