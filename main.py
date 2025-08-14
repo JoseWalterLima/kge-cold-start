@@ -37,7 +37,7 @@ def main():
         fasrp_params = {k: v for k, v in combination.items() if k != "method"}
         len_hops = len(combination['iterationWeights'])
         search_methods = combination['method']
-        # Hold validation set to evaluate current hyperparameters combination
+        # Sampling and hold validation set to evaluate current hyperparameters combination
         val_ids_names, val_ids_caracteristcs = node_handler.hold_and_remove_movies_sample()
         print("Validation Sampling complete.")
         print(len(val_ids_names), "validation nodes sampled.")
@@ -74,8 +74,6 @@ def main():
                 print('Instantiate EvaluationHandler.')
                 real_users = node_evaluation.retrive_actual_users()
                 print("Actual users retrieved.")
-                print("Usuários recomendados:", rec_users)
-                print("Usuários reais:", real_users)
                 for k in [10, 20, 50]:
                     get_metrics = node_evaluation.calculate_metrics(real_users, k)
                     # During iteration:
@@ -85,49 +83,52 @@ def main():
                         "ndcg": get_metrics[1],
                         "method": method,
                     })
-                print(evaluations)
-                sys.exit("Exiting for debug")
-                # ATÉ AQUI ESTÁ TUDO OK, AGORA VOU DEBUGGAR A MÉDIA DAS MÉTRICAS
-                # PARA CADA MÉTODO E CADA CORTES CONSIDERANDO TODOS OS NÓS DE VALIDAÇÃO
+            node_handler.delete_nodes_and_rels(node["movieId"])
+            print(f"Node {node['movieId']} and its relationships deleted.")
+        
+        print(evaluations)
+        # Calculate average metrics for group of nodes, metod and cutoff
+        grouped = defaultdict(lambda: defaultdict(list))
+        for e in evaluations:
+            grouped[e["method"]][e["cutoff"]].append(e)
+        average_metrics = {}
+        for method, cutoffs in grouped.items():
+            average_metrics[method] = {}
+            for cutoff, metrics in cutoffs.items():
+                avg_precision = sum(m["precision"] for m in metrics) / len(metrics)
+                avg_ndcg = sum(m["ndcg"] for m in metrics) / len(metrics)
+                average_metrics[method][cutoff] = {
+                    "average_precision": round(avg_precision, 2),
+                    "average_ndcg": round(avg_ndcg, 2)
+                }
+        # Save the report with the average metrics for each method and cutoff
+        for method, cutoffs in average_metrics.items():
+            for cutoff, metrics in cutoffs.items():
+                # Prepare metrics dict in the expected format
+                metrics_dict = {
+                    f"precision_at_k_{cutoff}": metrics["average_precision"],
+                    f"ndcg_at_k_{cutoff}": metrics["average_ndcg"]
+                }
+                # Salve o relatório
+                report_builder.save_report(
+                    hyperparameters=fasrp_params,
+                    method=method,
+                    metrics=metrics_dict,
+                    exp_id=experiment_name
+                )
+        experiment_name += 1
+        print("First hiperparameters combination completed.")
+        sys.exit("Exiting for debug")
+        
+        # ATÉ AQUI ESTÁ TUDO OK, AGORA VOU DEBUGGAR A MÉDIA DAS MÉTRICAS
+        # PARA CADA MÉTODO E CADA CORTES CONSIDERANDO TODOS OS NÓS DE VALIDAÇÃO
 
-
-
-    # Calculate average metrics for group of nodes, metod and cutoff
-    grouped = defaultdict(lambda: defaultdict(list))
-    for e in evaluations:
-        grouped[e["method"]][e["cutoff"]].append(e)
-    average_metrics = {}
-    for method, cutoffs in grouped.items():
-        average_metrics[method] = {}
-        for cutoff, metrics in cutoffs.items():
-            avg_precision = sum(m["precision"] for m in metrics) / len(metrics)
-            avg_ndcg = sum(m["ndcg"] for m in metrics) / len(metrics)
-            average_metrics[method][cutoff] = {
-                "average_precision": avg_precision,
-                "average_ndcg": avg_ndcg
-            }
-    # Save the report with the average metrics for each method and cutoff
-    for method, cutoffs in average_metrics.items():
-        for cutoff, metrics in cutoffs.items():
-            # Prepare metrics dict in the expected format
-            metrics_dict = {
-                f"precision_at_k_{cutoff}": metrics["average_precision"],
-                f"ndcg_at_k_{cutoff}": metrics["average_ndcg"]
-            }
-            # Salve o relatório
-            report_builder.save_report(
-                hyperparameters=fasrp_params,
-                method=method,
-                metrics=metrics_dict,
-                exp_id=experiment_name
-            )
-    # Recreate validation nodes and its attributes and
-    # relationships in the graph
-    node_handler.recreate_movie_nodes(val_ids_names)
-    node_handler.recreate_movie_attribute_rels(val_ids_caracteristcs)
-    node_handler.recreate_user_movie_rels(
-        [node["movieId"] for node in val_ids_names])
-    experiment_name += 1
+        # Recreate validation nodes and its attributes and
+        # relationships in the graph
+        node_handler.recreate_movie_nodes(val_ids_names)
+        node_handler.recreate_movie_attribute_rels(val_ids_caracteristcs)
+        node_handler.recreate_user_movie_rels(
+            [node["movieId"] for node in val_ids_names])
 
   # Exception handling for invalid parameters and hyperparameters
   except Exception as e:
