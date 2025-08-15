@@ -117,18 +117,16 @@ def main():
                     exp_id=experiment_name
                 )
         experiment_name += 1
+        print(f"experiment_name: {experiment_name} completed.")
         print("First hiperparameters combination completed.")
-        sys.exit("Exiting for debug")
-        
-        # ATÉ AQUI ESTÁ TUDO OK, AGORA VOU DEBUGGAR A MÉDIA DAS MÉTRICAS
-        # PARA CADA MÉTODO E CADA CORTES CONSIDERANDO TODOS OS NÓS DE VALIDAÇÃO
-
         # Recreate validation nodes and its attributes and
         # relationships in the graph
         node_handler.recreate_movie_nodes(val_ids_names)
         node_handler.recreate_movie_attribute_rels(val_ids_caracteristcs)
         node_handler.recreate_user_movie_rels(
             [node["movieId"] for node in val_ids_names])
+        print("Validation nodes and relationships recreated.")
+    print("All hyperparameters combinations completed.")
 
   # Exception handling for invalid parameters and hyperparameters
   except Exception as e:
