@@ -95,7 +95,7 @@ class ReportHandler:
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4)
     
-    def get_best_config(self, metric: str, k=100):
+    def get_best_config(self, metric: str, k=10):
         """
         Retrieve the best configuration based on the highest value of a specific metric at a specific k.
         Args:
@@ -116,7 +116,7 @@ class ReportHandler:
             value = None
             if isinstance(metrics, dict):
                 # If metrics are stored as dict: { "precision_at_k_10": 0.5, ... }
-                key = f"{metric}_{k}" if not metric.endswith(f"_{k}") else metric
+                key = f"{metric}_at_k_{k}" if not metric.endswith(f"_{k}") else metric
                 value = metrics.get(key)
             elif isinstance(metrics, list):
                 # If metrics are stored as list: [precision_at_k, ndcg_at_k, ...]
