@@ -1,7 +1,7 @@
 env/
 kgenv/
 data/
-experiments/
+#experiments/
 notebooks/
 *.ipynb
 *.csv
