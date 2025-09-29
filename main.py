@@ -7,6 +7,7 @@ from src.embedding_handler import UserEmbeddingHandler, ItemEmbeddingHandler
 from src.vector_search_handler import VectorRetriever
 from src.metrics_handler import EvaluationHandler, ReportHandler
 from collections import defaultdict
+import pandas as pd
 
 def main():  
     # load JSON file with hyperparameters
@@ -23,6 +24,10 @@ def main():
         # and sampling graph and generate the Test Set 
         node_handler = NodeHandler()
         test_ids_names, test_ids_caracteristcs = node_handler.hold_and_remove_movies_sample()
+        # Save test node IDs for reproducibility on LighFM execution
+        # Salvar em um arquivo JSON
+        with open('experiments/test_ids.json', 'w', encoding='utf-8') as f:
+            json.dump(test_ids_names, f, ensure_ascii=False, indent=4)
         print("Test Sampling complete.")
         print(len(test_ids_names), "test nodes sampled.")
         
