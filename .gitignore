@@ -2,8 +2,10 @@ env/
 kgenv/
 data/
 #experiments/
-notebooks/
-*.ipynb
+notebooks/eda.ipynb
+notebooks/fasrp_subgraph.ipynb
+notebooks/fastrp.opt.ipynb
+#*.ipynb
 *.csv
 __pycache__/
 pwd.yaml
