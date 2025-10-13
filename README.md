@@ -18,11 +18,6 @@ EXPLICAR SOBRE O MOVIE LENS 100K
 - Neo4j Graph Data Science 2.13.2
 - OpenJDK 21
 
-**Organização dos Arquivos**:
-- **sql/investment_data.sql**: Consulta e estruturação dos dados de investimento e de usuários, disponíveis no Trino.
-
-- **sql/employees_data.sql**: Busca informações sobre funcionários do Banco Inter e Coligadas.
-
 **Processamento dos Dados e Construção do Graph DB**:
 - **src/process_data.py**: Transformação de dados, tratamento de dados ausentes, remoção de lideranças do Banco Inter e coligadas.
 
@@ -30,6 +25,20 @@ EXPLICAR SOBRE O MOVIE LENS 100K
 
 - **src/graph_builder.py**: Realiza carga em um banco de dados em grafo Neo4j, a partir de dados segmentados de investimentos.
 
+**Implementação dos algoritmos**:
+- **sql/investment_data.sql**: Consulta e estruturação dos dados de investimento e de usuários, disponíveis no Trino.
 
-## Colaboradores do trabalho
-Este projeto é uma construção conjunta das áreas de PD II e PD III.
+- **sql/employees_data.sql**: Busca informações sobre funcionários do Banco Inter e Coligadas.
+
+
+## Referência
+Se você achou este trabalho útil, por favor considere citar:
+@misc{cold-start-as-graph-completion,
+      title={Abordagem do problema de cold-start, em sistemas de recomendação, como uma tarefa de completude em grafo de conhecimento}, 
+      author={José Walter de Lima Mota},
+      year={2025},
+      eprint={},
+      archivePrefix={},
+      primaryClass={},
+      url={}, 
+}
