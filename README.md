@@ -1,6 +1,6 @@
 # **Abordagem do problema de cold-start, em sistemas de recomendação, como uma tarefa de completude em grafo de conhecimento**
 
-Este repositório contém a implementação da dissertação de mestrado intitulada: "Abordagem do problema de cold-start, em sistemas de recomendação, como uma tarefa de completude em grafo de conhecimento", do Programa de Pós-Gradução em Ciência da Computação da UFMG. Utilizando uma estrutura leve e eficiente, a solução alcançou resultados expressivos ao recomendar itens mesmo na ausência de interações históricas, superando as métricas de Precision e NDCG do algoritmo LightFM em 30% e 130% respectivamente.
+Este repositório contém a implementação do código da dissertação de mestrado intitulada: "Abordagem do problema de cold-start, em sistemas de recomendação, como uma tarefa de completude em grafo de conhecimento", do Programa de Pós-Gradução em Ciência da Computação da UFMG. Utilizando uma estrutura leve e eficiente, a solução alcançou resultados expressivos ao recomendar itens mesmo na ausência de interações históricas, superando as métricas de Precision e NDCG do algoritmo LightFM em 30% e 130% respectivamente.
 
 
 ADICIONAR AQUI UMA REVISÃO DA PROPOSTA.
