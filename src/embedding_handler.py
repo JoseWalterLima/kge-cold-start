@@ -1,7 +1,8 @@
 # Author: José Walter Mota
 # 07/2025
 
-from gds_connector import get_gds_connection
+from src.gds_connector import get_gds_connection
+import yaml
 import numpy as np
 
 class UserEmbeddingHandler:
@@ -23,18 +24,26 @@ class UserEmbeddingHandler:
         user_ids = self.get_user_node_ids(embeddings)
         return self.create_user_vectors(embeddings, user_ids)
     
-    def full_graph_projection(self):
+    def full_graph_projection(self, config_path="src/config.yaml"):
+        # load graph projection configuration from YAML file
+        with open(config_path, "r", encoding="utf-8") as f:
+            cfg = yaml.safe_load(f)
+        node_projection = cfg.get("node_projection")
+        relationship_projection = cfg.get("relationship_projection")
+        # check if graph projection already exists and drop it
+        self.gds.graph.drop('full_graph_projection', False)
         graph_name = "full_graph_projection"
         projection, metadata = self.gds.graph.project(
             graph_name,
-            self.node_projection,
-            self.relationship_projection
+            node_projection,
+            relationship_projection
         )
         return projection
 
     def create_user_fastrp_embeddings(self, projection):
         try:
-            return self.gds.fastRP.stream(projection, **self.params)
+            return self.gds.fastRP.stream(
+                projection, randomSeed=42, **self.params)
         except Exception as e:
             raise RuntimeError(f"FastRP failed: {e}")
 
@@ -64,7 +73,7 @@ class ItemEmbeddingHandler:
     def __init__(self, subgraph_projection, target_node_id, params):
         self.gds = get_gds_connection()
         self.subgraph_projection = subgraph_projection
-        self.target_node_id = target_node_id
+        self.target_node_id = int(target_node_id)
         self.params = params
 
     def create_item_vector_array(self):
@@ -75,7 +84,8 @@ class ItemEmbeddingHandler:
 
     def create_item_fastrp_embedding(self):
         try:
-            return self.gds.fastRP.stream(self.subgraph_projection, **self.params)
+            return self.gds.fastRP.stream(
+                self.subgraph_projection, randomSeed=42, **self.params)
         except Exception as e:
             raise RuntimeError(f"FastRP failed: {e}")
 

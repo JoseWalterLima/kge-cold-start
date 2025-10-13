@@ -38,7 +38,10 @@ class VectorRetriever:
         #     # a descrição do método utilizado (ex: 'cosine',
         #     # 'euclidean', etc.) para permitir identificação
         #     # no relatório que será gerado pela classe MetricsHandler
-        return [self.item_array[0], np.array(ordered_user_ids)]
+        return {
+                "item_id": self.item_array[0],
+                "recommended_users": np.array(ordered_user_ids)
+            }
 
     def _cosine_similarity(self):
         similarities = cosine_similarity(

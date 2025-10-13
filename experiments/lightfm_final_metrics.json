@@ -1,0 +1,8 @@
+{
+    "precision@10": 0.17,
+    "precision@20": 0.17,
+    "precision@50": 0.22,
+    "ndcg@10": 0.19,
+    "ndcg@20": 0.18,
+    "ndcg@50": 0.21
+}

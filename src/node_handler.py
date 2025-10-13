@@ -1,7 +1,7 @@
 # Author: José Walter Mota
 # 07/2025
 
-from gds_connector import get_gds_connection
+from src.gds_connector import get_gds_connection
 import pandas as pd
 
 class NodeHandler:
@@ -78,11 +78,7 @@ class NodeHandler:
             .drop_duplicates()
             .to_dict("records")
         )
-        movie_id_caracteristcs = df_melted.groupby(
-            ["nodeLabel", "attributeType", "relType"],
-            sort=False
-        )
-        return movies_id_name, movie_id_caracteristcs
+        return movies_id_name, df_melted
 
     def delete_nodes_and_rels(self, ids):
         """
@@ -108,11 +104,15 @@ class NodeHandler:
         """
         self.gds.run_cypher(query, params={"movies": movies_id_name})
 
-    def recreate_movie_attribute_rels(self, movie_id_caracteristcs):
+    def recreate_movie_attribute_rels(self, df_melted):
         """
         Batch_recreates Movie_attribute relationships
         based on grouped data.
         """
+        movie_id_caracteristcs = df_melted.groupby(
+            ["nodeLabel", "attributeType", "relType"],
+            sort=False
+        )
         for (label, prop, rel), group in movie_id_caracteristcs:
             batch = (
                 group[["movieId", "attributeValue"]]
@@ -161,13 +161,15 @@ class NodeSubgraphHandler:
         the same hops as the FastRP embedding configuration for
         the current iteration on the optimization process.
         """
-        result = self.gds.run_cypher("""
-        MATCH (n:Movie {movieId: $self.movie_id})
-        OPTIONAL MATCH (n)-[*1..$self.hops]-(m)
-        WITH collect(DISTINCT id(n)) + collect(DISTINCT id(m)) AS allIds
+        result = self.gds.run_cypher(f"""
+        MATCH (n:Movie {{movieId: $movie_id}})
+        WITH id(n) AS targetId
+        OPTIONAL MATCH (n)-[*1..{self.hops}]-(m)
+        WITH collect(DISTINCT id(m)) AS neighborIds, targetId
+        WITH [targetId] + neighborIds AS allIds
         UNWIND allIds AS id
         RETURN DISTINCT id
-        """, params={"movieId": self.movie_id, "hops": self.hops})
+        """, params={"movie_id": self.movie_id})
 
         node_ids = result["id"].dropna().unique().tolist()
 
@@ -183,6 +185,7 @@ class NodeSubgraphHandler:
         """
 
         # Projection of the Sub Graph
+        self.gds.graph.drop('subgraph_projection', False)
         projection, metadata = self.gds.graph.project.cypher(
             "subgraph_projection",
             node_spec,
