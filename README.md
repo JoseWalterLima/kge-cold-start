@@ -33,6 +33,7 @@ EXPLICAR SOBRE O MOVIE LENS 100K
 
 ## Referência
 Se você achou este trabalho útil, por favor considere citar:
+```bibtex
 @misc{cold-start-as-graph-completion,
       title={Abordagem do problema de cold-start, em sistemas de recomendação, como uma tarefa de completude em grafo de conhecimento}, 
       author={José Walter de Lima Mota},
