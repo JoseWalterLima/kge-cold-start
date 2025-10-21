@@ -1,8 +1,8 @@
 {
     "best_params": {
-        "no_components": 47,
-        "learning_rate": 0.00010221614281338545,
+        "no_components": 77,
+        "learning_rate": 0.00010027576106954592,
         "loss": "logistic"
     },
-    "best_precision_at_5": 0.03594325855374336
+    "best_precision_at_5": 0.03446480259299278
 }
