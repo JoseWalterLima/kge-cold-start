@@ -5,6 +5,7 @@ data/
 notebooks/eda.ipynb
 notebooks/fasrp_subgraph.ipynb
 notebooks/fastrp.opt.ipynb
+notebooks/graphsage_copia.ipynb
 #*.ipynb
 *.csv
 __pycache__/

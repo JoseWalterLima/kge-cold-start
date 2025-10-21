@@ -1,0 +1,8 @@
+{
+  "run_index_in_list": 3,
+  "run_number_extracted": 3,
+  "state_path": "runs_graphsage\\run3_20251021T144658Z\\graphsage_encoder_run3.pt",
+  "embeddings_path": "test_embeddings_runs\\test_item_embeddings_run3.npy",
+  "n_test_items": 30,
+  "timestamp_utc": "20251021T183403Z"
+}
