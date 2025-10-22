@@ -1,0 +1,6 @@
+{
+    "embeddingDimension": 128,
+    "normalizationStrength": -0.7,
+    "iterationWeights": [0.0, 0.3],
+    "method": "cosine"
+}
