@@ -1,0 +1,65 @@
+{
+  "n_runs": 5,
+  "runs": [
+    {
+      "emb_path": "test_embeddings_runs\\test_item_embeddings_run1.npy",
+      "run_label": "run1",
+      "user_emb_path": "runs_graphsage\\run1_20251023T141444Z\\user_embeddings_run1.npy",
+      "n_test_items": 30,
+      "n_users": 943,
+      "k_requested": 50,
+      "topk_idx_npy": "test_embeddings_runs\\topk_per_run\\run1_topk_user_indices.npy",
+      "topk_scores_npy": "test_embeddings_runs\\topk_per_run\\run1_topk_scores.npy",
+      "topk_idx_json": "test_embeddings_runs\\topk_per_run\\run1_topk_user_indices.json",
+      "timestamp": "20251023T200601Z"
+    },
+    {
+      "emb_path": "test_embeddings_runs\\test_item_embeddings_run2.npy",
+      "run_label": "run2",
+      "user_emb_path": "runs_graphsage\\run2_20251023T142813Z\\user_embeddings_run2.npy",
+      "n_test_items": 30,
+      "n_users": 943,
+      "k_requested": 50,
+      "topk_idx_npy": "test_embeddings_runs\\topk_per_run\\run2_topk_user_indices.npy",
+      "topk_scores_npy": "test_embeddings_runs\\topk_per_run\\run2_topk_scores.npy",
+      "topk_idx_json": "test_embeddings_runs\\topk_per_run\\run2_topk_user_indices.json",
+      "timestamp": "20251023T200601Z"
+    },
+    {
+      "emb_path": "test_embeddings_runs\\test_item_embeddings_run3.npy",
+      "run_label": "run3",
+      "user_emb_path": "runs_graphsage\\run3_20251023T144217Z\\user_embeddings_run3.npy",
+      "n_test_items": 30,
+      "n_users": 943,
+      "k_requested": 50,
+      "topk_idx_npy": "test_embeddings_runs\\topk_per_run\\run3_topk_user_indices.npy",
+      "topk_scores_npy": "test_embeddings_runs\\topk_per_run\\run3_topk_scores.npy",
+      "topk_idx_json": "test_embeddings_runs\\topk_per_run\\run3_topk_user_indices.json",
+      "timestamp": "20251023T200601Z"
+    },
+    {
+      "emb_path": "test_embeddings_runs\\test_item_embeddings_run4.npy",
+      "run_label": "run4",
+      "user_emb_path": "runs_graphsage\\run4_20251023T145539Z\\user_embeddings_run4.npy",
+      "n_test_items": 30,
+      "n_users": 943,
+      "k_requested": 50,
+      "topk_idx_npy": "test_embeddings_runs\\topk_per_run\\run4_topk_user_indices.npy",
+      "topk_scores_npy": "test_embeddings_runs\\topk_per_run\\run4_topk_scores.npy",
+      "topk_idx_json": "test_embeddings_runs\\topk_per_run\\run4_topk_user_indices.json",
+      "timestamp": "20251023T200601Z"
+    },
+    {
+      "emb_path": "test_embeddings_runs\\test_item_embeddings_run5.npy",
+      "run_label": "run5",
+      "user_emb_path": "runs_graphsage\\run5_20251023T150858Z\\user_embeddings_run5.npy",
+      "n_test_items": 30,
+      "n_users": 943,
+      "k_requested": 50,
+      "topk_idx_npy": "test_embeddings_runs\\topk_per_run\\run5_topk_user_indices.npy",
+      "topk_scores_npy": "test_embeddings_runs\\topk_per_run\\run5_topk_scores.npy",
+      "topk_idx_json": "test_embeddings_runs\\topk_per_run\\run5_topk_user_indices.json",
+      "timestamp": "20251023T200601Z"
+    }
+  ]
+}
