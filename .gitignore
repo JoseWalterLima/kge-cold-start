@@ -1,6 +1,5 @@
 env/
 kgenv/
-data/
 #experiments/
 notebooks/eda.ipynb
 notebooks/fasrp_subgraph.ipynb
