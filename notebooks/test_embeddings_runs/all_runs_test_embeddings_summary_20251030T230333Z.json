@@ -1,0 +1,85 @@
+{
+  "n_states": 10,
+  "runs": [
+    {
+      "run_index_in_list": 1,
+      "run_number_extracted": 1,
+      "state_path": "runs_graphsage\\run1_20251021T142343Z\\graphsage_encoder_run1.pt",
+      "embeddings_path": "test_embeddings_runs\\test_item_embeddings_run1.npy",
+      "n_test_items": 297,
+      "timestamp_utc": "20251030T230315Z"
+    },
+    {
+      "run_index_in_list": 2,
+      "run_number_extracted": 1,
+      "state_path": "runs_graphsage\\run1_20251027T083914Z\\graphsage_encoder_run1.pt",
+      "embeddings_path": "test_embeddings_runs\\test_item_embeddings_run1.npy",
+      "n_test_items": 297,
+      "timestamp_utc": "20251030T230319Z"
+    },
+    {
+      "run_index_in_list": 3,
+      "run_number_extracted": 2,
+      "state_path": "runs_graphsage\\run2_20251021T143534Z\\graphsage_encoder_run2.pt",
+      "embeddings_path": "test_embeddings_runs\\test_item_embeddings_run2.npy",
+      "n_test_items": 297,
+      "timestamp_utc": "20251030T230320Z"
+    },
+    {
+      "run_index_in_list": 4,
+      "run_number_extracted": 2,
+      "state_path": "runs_graphsage\\run2_20251027T233000Z\\graphsage_encoder_run2.pt",
+      "embeddings_path": "test_embeddings_runs\\test_item_embeddings_run2.npy",
+      "n_test_items": 297,
+      "timestamp_utc": "20251030T230322Z"
+    },
+    {
+      "run_index_in_list": 5,
+      "run_number_extracted": 3,
+      "state_path": "runs_graphsage\\run3_20251021T144658Z\\graphsage_encoder_run3.pt",
+      "embeddings_path": "test_embeddings_runs\\test_item_embeddings_run3.npy",
+      "n_test_items": 297,
+      "timestamp_utc": "20251030T230324Z"
+    },
+    {
+      "run_index_in_list": 6,
+      "run_number_extracted": 3,
+      "state_path": "runs_graphsage\\run3_20251028T142312Z\\graphsage_encoder_run3.pt",
+      "embeddings_path": "test_embeddings_runs\\test_item_embeddings_run3.npy",
+      "n_test_items": 297,
+      "timestamp_utc": "20251030T230326Z"
+    },
+    {
+      "run_index_in_list": 7,
+      "run_number_extracted": 4,
+      "state_path": "runs_graphsage\\run4_20251021T145840Z\\graphsage_encoder_run4.pt",
+      "embeddings_path": "test_embeddings_runs\\test_item_embeddings_run4.npy",
+      "n_test_items": 297,
+      "timestamp_utc": "20251030T230328Z"
+    },
+    {
+      "run_index_in_list": 8,
+      "run_number_extracted": 4,
+      "state_path": "runs_graphsage\\run4_20251029T073740Z\\graphsage_encoder_run4.pt",
+      "embeddings_path": "test_embeddings_runs\\test_item_embeddings_run4.npy",
+      "n_test_items": 297,
+      "timestamp_utc": "20251030T230329Z"
+    },
+    {
+      "run_index_in_list": 9,
+      "run_number_extracted": 5,
+      "state_path": "runs_graphsage\\run5_20251021T151011Z\\graphsage_encoder_run5.pt",
+      "embeddings_path": "test_embeddings_runs\\test_item_embeddings_run5.npy",
+      "n_test_items": 297,
+      "timestamp_utc": "20251030T230330Z"
+    },
+    {
+      "run_index_in_list": 10,
+      "run_number_extracted": 5,
+      "state_path": "runs_graphsage\\run5_20251029T235944Z\\graphsage_encoder_run5.pt",
+      "embeddings_path": "test_embeddings_runs\\test_item_embeddings_run5.npy",
+      "n_test_items": 297,
+      "timestamp_utc": "20251030T230331Z"
+    }
+  ]
+}
