@@ -1,1 +1,1 @@
-{"n_users": 943, "n_train_items": 1652, "feature_dim": 262, "D_user": 135, "D_item": 127}
+{"n_users": 6040, "n_train_items": 3409, "feature_dim": 223, "D_user": 124, "D_item": 99}
